@@ -9,6 +9,7 @@ import (
 	"net/http"
     "bytes"
     "os"
+    "mvdan.cc/xurls"
 )
 
 var bot *linebot.Client
@@ -57,8 +58,11 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 func textHander(event *linebot.Event, message *linebot.TextMessage) {
 	switch message.Text {
 	case "show me":
-        response := buildResponse()
-        sendTextMessage(event, response)
+        //response := buildResponse()
+        //sendTextMessage(event, response)
+
+        template := buildCarouseTemplate()
+        sendCarouselMessage(event, template)
 	}
 	//if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.ID+":"+message.Text+" OK!")).Do(); err != nil {
 	//
@@ -82,4 +86,55 @@ func sendTextMessage(event *linebot.Event, text string){
     if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
         log.Println("Send Fail")
     }
+}
+
+func findImageInContent(content string)(img string){
+	img = xurls.Relaxed().FindString(content)
+	return img
+}
+
+func buildCarouseTemplate()(template *linebot.CarouselTemplate){
+	results, _ := controllers.GetMostLike(meta.Collection, 5)
+
+	columnList := []linebot.CarouselColumn{}
+
+	for _, result := range results{
+		thumnailUrl := findImageInContent(result.Content)
+		fmt.Println(thumnailUrl)
+		tmpColumn := linebot.NewCarouselColumn(
+			thumnailUrl,
+			result.ArticleTitle,
+			fmt.Sprintf("推文數量: %d", result.MessageCount.Push),
+			linebot.NewURITemplateAction("點我打開", result.URL),
+			//linebot.NewPostbackTemplateAction("Say hello1", "hello こんにちは", "", ""),
+		)
+		columnList = append(columnList, *tmpColumn)
+	}
+
+	template = linebot.NewCarouselTemplate(&columnList[0], &columnList[1], &columnList[2], &columnList[3], &columnList[4])
+
+
+	//template = linebot.NewCarouselTemplate(
+	//	linebot.NewCarouselColumn(
+	//		"",
+	//		"hoge",
+	//		"fuga",
+	//		linebot.NewURITemplateAction("Go to line.me", "https://line.me"),
+	//		//linebot.NewPostbackTemplateAction("Say hello1", "hello こんにちは", "", ""),
+	//	),
+	//	linebot.NewCarouselColumn(
+	//		"",
+	//		"hoge",
+	//		"fuga",
+	//		linebot.NewPostbackTemplateAction("言 hello2", "hello こんにちは", "hello こんにちは", ""),
+	//		linebot.NewMessageTemplateAction("Say message", "Rice=米"),
+	//	),
+	//)
+	return template
+}
+
+func sendCarouselMessage(event *linebot.Event, template *linebot.CarouselTemplate){
+	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("Carousel alt text", template)).Do(); err != nil {
+		log.Println(err)
+	}
 }
