@@ -16,19 +16,19 @@ var bot *linebot.Client
 var meta *models.Model
 var maxCountOfCarousel = 10
 var defaultImage = "https://s3-ap-northeast-1.amazonaws.com/ottbuilder-neil-test/img/default.png"
-var oneDayInSec = 60 * 60 *24
+var oneDayInSec = 60 * 60 * 24
 var oneMonthInSec = oneDayInSec * 30
 var oneYearInSec = oneMonthInSec * 365
 
 // EventType constants
 const (
-	ActionDailyHot   string = "本日熱門"
-	ActionMonthlyHot string = "近期熱門"
-	ActionYearHot    string = "年度熱門"
-	ActionRandom     string = "隨機"
+	ActionDailyHot   string = "📈 本日熱門"
+	ActionMonthlyHot string = "🔥 近期熱門"
+	ActionYearHot    string = "👑 年度熱門"
+	ActionRandom     string = "👧 隨機"
+	ActionClick      string = "👉 點我打開"
 	ActionHelp       string = "/show"
-
-	ModeHttp string = "http"
+	ModeHttp  string = "http"
 	ModeHttps string = "https"
 )
 
@@ -48,10 +48,10 @@ func InitLineBot(m *models.Model) {
 	addr := fmt.Sprintf(":%s", port)
 	runMode := os.Getenv("RUNMODE")
 	m.Log.Printf("Run Mode = %s\n", runMode)
-	if strings.ToLower(runMode) == ModeHttps{
+	if strings.ToLower(runMode) == ModeHttps {
 		m.Log.Printf("Secure listen on %s with \n", addr)
 		http.ListenAndServeTLS(addr, "/etc/dehydrated/certs/nt1.me/fullchain.pem", "/etc/dehydrated/certs/nt1.me/privkey.pem", nil)
-	}else{
+	} else {
 		m.Log.Printf("Listen on %s\n", addr)
 		http.ListenAndServe(addr, nil)
 	}
@@ -149,9 +149,9 @@ func buildButtonTemplate() (template *linebot.ButtonsTemplate) {
 
 func findImageInContent(content string) (img string) {
 	imgs := xurls.Relaxed().FindAllString(content, -1)
-	if imgs != nil{
-		for _, img := range imgs{
-			if strings.HasSuffix(strings.ToLower(img), "jpg"){
+	if imgs != nil {
+		for _, img := range imgs {
+			if strings.HasSuffix(strings.ToLower(img), "jpg") {
 				img = strings.Replace(img, "http://", "https://", -1)
 				return img
 			}
@@ -160,12 +160,11 @@ func findImageInContent(content string) (img string) {
 		img := imgs[0] + ".jpg"
 		img = strings.Replace(img, "http://", "https://", -1)
 		return img
-	}else{
+	} else {
 		return defaultImage
 	}
 
 }
-
 
 func buildCarouseTemplate(action string) (template *linebot.CarouselTemplate) {
 	results := []models.ArticleDocument{}
@@ -192,10 +191,9 @@ func buildCarouseTemplate(action string) (template *linebot.CarouselTemplate) {
 		tmpColumn := linebot.NewCarouselColumn(
 			thumnailUrl,
 			result.ArticleTitle,
-			//fmt.Sprintf("推文數量: %d", result.MessageCount.Push),
-			fmt.Sprintf("共有 %d 人推文\n共有 %d 人噓文", result.MessageCount.All, result.MessageCount.Boo),
-			linebot.NewURITemplateAction("點我打開", result.URL),
-			linebot.NewMessageTemplateAction(ActionDailyHot, ActionDailyHot),
+			fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo),
+			linebot.NewURITemplateAction(ActionClick, result.URL),
+			linebot.NewMessageTemplateAction(ActionMonthlyHot, ActionMonthlyHot),
 			linebot.NewMessageTemplateAction(ActionRandom, ActionRandom),
 		)
 		columnList = append(columnList, tmpColumn)
