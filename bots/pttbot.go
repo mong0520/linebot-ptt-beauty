@@ -43,7 +43,8 @@ func InitLineBot(m *models.Model) {
 	port := os.Getenv("PORT")
 	//port := "8080"
 	addr := fmt.Sprintf(":%s", port)
-	http.ListenAndServe(addr, nil)
+	//http.ListenAndServe(addr, nil)
+	http.ListenAndServeTLS(addr, "/etc/dehydrated/certs/nt1.me/fullchain.pem", "/etc/dehydrated/certs/nt1.me/privkey.pem", nil)
 }
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +65,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
 				meta.Log.Println("Content = ", message.Text)
-				textHander(&event, message.Text)
+				textHander(event, message.Text)
 			}
 		} else if event.Type == linebot.EventTypePostback {
 			meta.Log.Println("got a postback event")
@@ -97,7 +98,7 @@ func textHander(event *linebot.Event, message string) {
 }
 
 func buildButtonTemplate() (template *linebot.ButtonsTemplate) {
-	template = linebot.NewButtonsTemplate("", "表特看看", "你可以試試看...",
+	template = linebot.NewButtonsTemplate("", "💋表特看看", "你可以試試看...",
 		linebot.NewMessageTemplateAction(ActionDailyHot, ActionDailyHot),
 		linebot.NewMessageTemplateAction(ActionMonthlyHot, ActionMonthlyHot),
 		linebot.NewMessageTemplateAction(ActionYearHot, ActionYearHot),
