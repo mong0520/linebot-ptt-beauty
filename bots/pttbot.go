@@ -64,7 +64,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
 				meta.Log.Println("Content = ", message.Text)
-				textHander(event, message.Text)
+				textHander(&event, message.Text)
 			}
 		} else if event.Type == linebot.EventTypePostback {
 			meta.Log.Println("got a postback event")
