@@ -23,7 +23,7 @@ var oneYearInSec = oneMonthInSec * 365
 // EventType constants
 const (
 	ActionDailyHot   string = "📈 本日熱門"
-	ActionMonthlyHot string = "🔥 近期熱門"
+	ActionMonthlyHot string = "🔥 近期熱門"  //改成近期隨機, 先選出100個，然後隨機吐10筆
 	ActionYearHot    string = "👑 年度熱門"
 	ActionRandom     string = "👧 隨機"
 	ActionClick      string = "👉 點我打開"
@@ -115,7 +115,14 @@ func textHander(event *linebot.Event, message string) {
 		template := buildButtonTemplate()
 		sendButtonMessage(event, template)
 	default:
-		meta.Log.Println(message)
+		// event is from a user
+		if event.Source.UserID != ""{
+			template := buildButtonTemplate()
+			sendButtonMessage(event, template)
+		}else{
+		// event is from room or group
+			meta.Log.Println(message)
+		}
 	}
 }
 
