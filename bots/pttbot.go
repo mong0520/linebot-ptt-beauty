@@ -22,14 +22,16 @@ var oneYearInSec = oneMonthInSec * 365
 
 // EventType constants
 const (
+	DefaultTitle	 string = "💋表特看看"
 	ActionDailyHot   string = "📈 本日熱門"
-	ActionMonthlyHot string = "🔥 近期熱門"  //改成近期隨機, 先選出100個，然後隨機吐10筆
+	ActionMonthlyHot string = "🔥 近期熱門" //改成近期隨機, 先選出100個，然後隨機吐10筆
 	ActionYearHot    string = "👑 年度熱門"
 	ActionRandom     string = "👧 隨機"
 	ActionClick      string = "👉 點我打開"
 	ActionHelp       string = "/show"
-	ModeHttp  string = "http"
-	ModeHttps string = "https"
+	ModeHttp         string = "http"
+	ModeHttps        string = "https"
+	ErrorNotFound    string = "找不到關鍵字"
 )
 
 func InitLineBot(m *models.Model) {
@@ -99,39 +101,39 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 
 func textHander(event *linebot.Event, message string) {
 	switch message {
-	case ActionDailyHot:
-		template := buildCarouseTemplate(ActionDailyHot)
-		sendCarouselMessage(event, template)
-	case ActionMonthlyHot:
-		template := buildCarouseTemplate(ActionMonthlyHot)
-		sendCarouselMessage(event, template)
-	case ActionYearHot:
-		template := buildCarouseTemplate(ActionYearHot)
-		sendCarouselMessage(event, template)
-	case ActionRandom:
-		template := buildCarouseTemplate(ActionRandom)
-		sendCarouselMessage(event, template)
+	case ActionDailyHot, ActionMonthlyHot, ActionYearHot, ActionRandom:
+		if template := buildCarouseTemplate(message); template != nil {
+			sendCarouselMessage(event, template)
+		} else {
+			template := buildButtonTemplate(ErrorNotFound)
+			sendButtonMessage(event, template)
+		}
 	case ActionHelp:
-		template := buildButtonTemplate()
+		template := buildButtonTemplate(DefaultTitle)
 		sendButtonMessage(event, template)
 	default:
 		// event is from a user
-		if event.Source.UserID != ""{
-			template := buildButtonTemplate()
-			sendButtonMessage(event, template)
-		}else{
-		// event is from room or group
+		if event.Source.UserID != "" {
+			if template := buildCarouseTemplate(message); template != nil {
+				sendCarouselMessage(event, template)
+			} else {
+				template := buildButtonTemplate(ErrorNotFound)
+				sendButtonMessage(event, template)
+			}
+		} else {
+			// event is from room or group
 			meta.Log.Println(message)
 		}
 	}
 }
 
-func buildButtonTemplate() (template *linebot.ButtonsTemplate) {
-	template = linebot.NewButtonsTemplate("", "💋表特看看", "你可以試試看...",
+func buildButtonTemplate(title string) (template *linebot.ButtonsTemplate) {
+	template = linebot.NewButtonsTemplate("", title, "你可以試試看以下選項，或直接輸入關鍵字查詢",
 		linebot.NewMessageTemplateAction(ActionDailyHot, ActionDailyHot),
 		linebot.NewMessageTemplateAction(ActionMonthlyHot, ActionMonthlyHot),
 		linebot.NewMessageTemplateAction(ActionYearHot, ActionYearHot),
 		linebot.NewMessageTemplateAction(ActionRandom, ActionRandom),
+		//linebot.NewMessageTemplateAction("美腿", "美腿"),
 	)
 	return template
 }
@@ -148,11 +150,11 @@ func buildButtonTemplate() (template *linebot.ButtonsTemplate) {
 //	return resp
 //}
 
-//func sendTextMessage(event *linebot.Event, text string) {
-//	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
-//		log.Println("Send Fail")
-//	}
-//}
+func sendTextMessage(event *linebot.Event, text string) {
+	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
+		log.Println("Send Fail")
+	}
+}
 
 func findImageInContent(content string) (img string) {
 	imgs := xurls.Relaxed().FindAllString(content, -1)
@@ -183,25 +185,39 @@ func buildCarouseTemplate(action string) (template *linebot.CarouselTemplate) {
 	case ActionYearHot:
 		results, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, oneYearInSec)
 	case ActionRandom:
-		results, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel)
+		results, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel, "")
 	default:
-		return
+		meta.Log.Println("Get keyword", action)
+		results, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel, action)
 	}
 
 	columnList := []*linebot.CarouselColumn{}
-
-	for _, result := range results {
+	meta.Log.Println("Found Records: ", len(results))
+	if len(results) == 0 {
+		return nil
+	}
+	for idx, result := range results {
 		//meta.Log.Printf("%+v", result)
 		//thumnailUrl := "https://c1.sd"
 		thumnailUrl := findImageInContent(result.Content)
-		//meta.Log.Println(idx, thumnailUrl)
+		title := result.ArticleTitle
+		if len(title) >= 40 {
+			title = title[0:39]
+		}
+		meta.Log.Println("===============", idx)
+		meta.Log.Println(thumnailUrl)
+		meta.Log.Println(title)
+		meta.Log.Printf("%d 😍\t%d 😡\n", result.MessageCount.Push, result.MessageCount.Boo)
+		meta.Log.Println(result.URL)
+		meta.Log.Println("===============", idx)
 		tmpColumn := linebot.NewCarouselColumn(
 			thumnailUrl,
-			result.ArticleTitle,
+			title,
 			fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo),
 			linebot.NewURITemplateAction(ActionClick, result.URL),
-			linebot.NewMessageTemplateAction(ActionMonthlyHot, ActionMonthlyHot),
+			//linebot.NewMessageTemplateAction(ActionMonthlyHot, ActionMonthlyHot),
 			linebot.NewMessageTemplateAction(ActionRandom, ActionRandom),
+			linebot.NewMessageTemplateAction("回選單", ActionHelp),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
