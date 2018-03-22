@@ -143,35 +143,6 @@ func findImageInContent(content string) (img string) {
 
 }
 
-func buildImgCarouseTemplate(action string) (template *linebot.ImageCarouselTemplate) {
-	results := []models.ArticleDocument{}
-	switch action {
-	case ActionDailyHot:
-		results, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, oneDayInSec)
-	case ActionRandom:
-		results, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel)
-	default:
-		results, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, oneMonthInSec)
-	}
-
-	columnList := []*linebot.ImageCarouselColumn{}
-
-	for _, result := range results {
-		//thumnailUrl := "https://i.imgur.com/mJMuhfP.jpg"
-		thumnailUrl := findImageInContent(result.Content)
-		//log.Println(thumnailUrl)
-		//log.Println(idx, thumnailUrl)
-		tmpColumn := linebot.NewImageCarouselColumn(
-			thumnailUrl,
-			linebot.NewURITemplateAction("點我打開", result.URL),
-		)
-		columnList = append(columnList, tmpColumn)
-	}
-
-	template = linebot.NewImageCarouselTemplate(columnList...)
-
-	return template
-}
 
 func buildCarouseTemplate(action string) (template *linebot.CarouselTemplate) {
 	results := []models.ArticleDocument{}
