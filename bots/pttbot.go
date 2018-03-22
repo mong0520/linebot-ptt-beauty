@@ -64,7 +64,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
 				meta.Log.Println("Content = ", message.Text)
-				textHander(event, message)
+				textHander(event, message.Text)
 			}
 		} else if event.Type == linebot.EventTypePostback {
 			meta.Log.Println("got a postback event")
@@ -74,8 +74,8 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func textHander(event *linebot.Event, message *linebot.TextMessage) {
-	switch message.Text {
+func textHander(event *linebot.Event, message string) {
+	switch message {
 	case ActionDailyHot:
 		template := buildCarouseTemplate(ActionDailyHot)
 		sendCarouselMessage(event, template)
@@ -92,7 +92,7 @@ func textHander(event *linebot.Event, message *linebot.TextMessage) {
 		template := buildButtonTemplate()
 		sendButtonMessage(event, template)
 	default:
-		meta.Log.Println(message.Text)
+		meta.Log.Println(message)
 	}
 }
 
