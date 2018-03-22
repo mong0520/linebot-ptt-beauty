@@ -39,7 +39,8 @@ func GetRandom(collection *mgo.Collection, count int)(results []models.ArticleDo
     //query := bson.M{"ArticleTitle": bson.RegEx{".+", ""}}
     //query := bson.M{"$sample": bson.M{"size": 10}}
     //log.Println("here")
-    query := bson.M{"article_title": bson.M{"$regex": bson.RegEx{".*正妹.*", ""}}}
+    baseline_ts := 1420070400 // 2015年Jan/1/00:00:00
+    query := bson.M{"timestamp": bson.M{"$gte": baseline_ts}, "article_title": bson.M{"$regex": bson.RegEx{".*正妹.*", ""}}}
     total, _ := collection.Find(query).Count()
     //fmt.Println("Total = ", total)
     rand.Seed(time.Now().UnixNano())
