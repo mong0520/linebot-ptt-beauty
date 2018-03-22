@@ -36,13 +36,16 @@ func main() {
 	}
 	logger = utils.GetLogger(logFile)
 	meta.Log = logger
-
+	meta.Log.Println("Start to init DB...")
 	initDB()
+	meta.Log.Println("...Done")
 	//results, _ := controllers.GetMostLike(meta.Collection, 5, 0)
 	//for _, r := range results {
 	//	fmt.Println(r.MessageCount.All, r.MessageCount.Boo, r.Date, r.URL, r.ArticleTitle)
 	//}
+	meta.Log.Println("Start to init Line Bot...")
 	initLineBot()
+	meta.Log.Println("...Exit")
 }
 
 func initLogFile() (logFile *os.File, err error) {

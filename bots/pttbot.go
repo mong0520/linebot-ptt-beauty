@@ -27,6 +27,9 @@ const (
 	ActionYearHot    string = "年度熱門"
 	ActionRandom     string = "隨機"
 	ActionHelp       string = "/show"
+
+	ModeHttp string = "http"
+	ModeHttps string = "https"
 )
 
 func InitLineBot(m *models.Model) {
@@ -43,8 +46,15 @@ func InitLineBot(m *models.Model) {
 	port := os.Getenv("PORT")
 	//port := "8080"
 	addr := fmt.Sprintf(":%s", port)
-	//http.ListenAndServe(addr, nil)
-	http.ListenAndServeTLS(addr, "/etc/dehydrated/certs/nt1.me/fullchain.pem", "/etc/dehydrated/certs/nt1.me/privkey.pem", nil)
+	runMode := os.Getenv("RUNMODE")
+	m.Log.Printf("Run Mode = %s\n", runMode)
+	if strings.ToLower(runMode) == ModeHttps{
+		m.Log.Printf("Secure listen on %s with \n", addr)
+		http.ListenAndServeTLS(addr, "/etc/dehydrated/certs/nt1.me/fullchain.pem", "/etc/dehydrated/certs/nt1.me/privkey.pem", nil)
+	}else{
+		m.Log.Printf("Listen on %s\n", addr)
+		http.ListenAndServe(addr, nil)
+	}
 }
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +71,19 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
-			meta.Log.Printf("Receieve Event Type = %s from User [%s] or Room [%s] or Group [%s]\n", event.Type, event.Source.UserID, event.Source.RoomID, event.Source.GroupID)
+
+			userDisplayName := ""
+			res, err := bot.GetProfile(event.Source.UserID).Do()
+			if err != nil {
+				//fmt.Println(err)
+				userDisplayName = "Unknown"
+			} else {
+				//fmt.Println(res.DisplayName)
+				userDisplayName = res.DisplayName
+			}
+			meta.Log.Printf("Receieve Event Type = %s from User [%s](%s), or Room [%s] or Group [%s]\n",
+				event.Type, userDisplayName, event.Source.UserID, event.Source.RoomID, event.Source.GroupID)
+
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
 				meta.Log.Println("Content = ", message.Text)
