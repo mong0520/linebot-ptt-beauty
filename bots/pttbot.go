@@ -195,8 +195,8 @@ func sendButtonMessage(event *linebot.Event, template *linebot.ButtonsTemplate) 
 	}
 }
 
-func sendImgCarouseMessage(event *linebot.Event, template *linebot.ImageCarouselTemplate) {
-	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("Carousel alt text", template)).Do(); err != nil {
-		meta.Log.Println(err)
-	}
-}
+//func sendImgCarouseMessage(event *linebot.Event, template *linebot.ImageCarouselTemplate) {
+//	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("Carousel alt text", template)).Do(); err != nil {
+//		meta.Log.Println(err)
+//	}
+//}
