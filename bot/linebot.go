@@ -40,8 +40,8 @@ func InitLineBot(m *models.Model) {
 	}
 	//log.Println("Bot:", bot, " err:", err)
 	http.HandleFunc("/callback", callbackHandler)
-	//port := os.Getenv("PORT")
-	port := "8080"
+	port := os.Getenv("PORT")
+	//port := "8080"
 	addr := fmt.Sprintf(":%s", port)
 	http.ListenAndServe(addr, nil)
 }
