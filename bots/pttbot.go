@@ -113,7 +113,7 @@ func textHander(event *linebot.Event, message string) {
 		sendButtonMessage(event, template)
 	default:
 		// event is from a user
-		if event.Source.UserID != "" {
+		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == ""{
 			if template := buildCarouseTemplate(message); template != nil {
 				sendCarouselMessage(event, template)
 			} else {
