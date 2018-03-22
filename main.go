@@ -4,7 +4,7 @@ import (
 	"github.com/mong0520/linebot-ptt/models"
 	"gopkg.in/mgo.v2"
 	"log"
-	"github.com/mong0520/linebot-ptt/bot"
+	"github.com/mong0520/linebot-ptt/bots"
 	"github.com/mong0520/linebot-ptt/utils"
 	"os"
 	"path"
@@ -15,7 +15,7 @@ var meta = &models.Model{}
 var LogRoot = "logs"
 
 func initLineBot() {
-	bot.InitLineBot(meta)
+	bots.InitLineBot(meta)
 }
 
 func initDB() {
