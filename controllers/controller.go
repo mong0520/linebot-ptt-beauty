@@ -69,7 +69,7 @@ func GetRandom(collection *mgo.Collection, count int, keyword string) (results [
 			skip := rand.Intn(total)
 			result := &models.ArticleDocument{}
 			collection.Find(query).Skip(skip).One(result)
-			//fmt.Println(result.ArticleTitle)
+			fmt.Println(skip)
 			results = append(results, *result)
 		}
 		sort.Slice(results, func(i, j int) bool {
