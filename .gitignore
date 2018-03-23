@@ -13,5 +13,5 @@
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 
-local_db
+db/volume
 local_run.sh
