@@ -207,10 +207,10 @@ func buildCarouseTemplate(action string) (template *linebot.CarouselTemplate) {
 			title = title[0:39]
 		}
 		meta.Log.Println("===============", idx)
-		meta.Log.Println(thumnailUrl)
-		meta.Log.Println(title)
-		meta.Log.Println(text)
-		meta.Log.Println(result.URL)
+		meta.Log.Println("Thumbnail Url = ", thumnailUrl)
+		meta.Log.Println("Title = ", title)
+		meta.Log.Println("Text = ", text)
+		meta.Log.Println("URL = ", result.URL)
 		meta.Log.Println("===============", idx)
 		tmpColumn := linebot.NewCarouselColumn(
 			thumnailUrl,
