@@ -2,7 +2,7 @@
 
 # 如何加入聊天機器人
 
-![QR Code](resource/qr_code.jpg)
+![QR Code](resource/qr_code.png)
 
 ---
 
