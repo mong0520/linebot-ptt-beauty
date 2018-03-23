@@ -15,3 +15,5 @@
 
 db/volume
 local_run.sh
+
+vendor/*/
