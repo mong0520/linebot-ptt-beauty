@@ -4,7 +4,7 @@
 - execute `run.sh ${PAGE_OFFSET}` to generate `Beauty.json`, 
 
 
-#Set Unique Index ID
+# Set Unique Index ID
 
 ```
 mongo
