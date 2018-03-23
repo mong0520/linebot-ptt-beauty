@@ -2,6 +2,12 @@
 
 # 安裝
 
+```
+go get github.com/mong0520/linebot-ptt
+govendor sync
+```
+
+
 # 本機測試
 
 ```
