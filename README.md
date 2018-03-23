@@ -1,4 +1,4 @@
-=250x# Line 聊天機器人 for PTT Beauty 版
+# Line 聊天機器人 for PTT Beauty 版
 
 ## For User
 
