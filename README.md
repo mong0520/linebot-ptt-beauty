@@ -43,16 +43,16 @@ ngrok http 8080
 
 * 功能選單
 
-![功能選單](resource/screen1.jpg | width=250)
+![](resource/screen1.jpg | width=250)
 
 
 * 熱門照片
 
-![熱門照片](resource/screen2.jpg | widht=250)
+![](resource/screen2.jpg | widht=250)
 
 
 * 對話直接搜尋
 
-![對話直接搜尋](resource/screen3.jpg | width=250)
+![](resource/screen3.jpg | width=250)
 
 ### 待辨清單:
