@@ -15,8 +15,8 @@ import (
 var bot *linebot.Client
 var meta *models.Model
 var maxCountOfCarousel = 10
-var defaultImage = "https://s3-ap-northeast-1.amazonaws.com/kks-neilwei/linebot/img/default.png"
-var defaultThumbnail = "https://s3-ap-northeast-1.amazonaws.com/kks-neilwei/linebot/img/thumbnail.png"
+var defaultImage = "https://i.imgur.com/WAnWk7K.png"
+var defaultThumbnail = "https://i.imgur.com/StcRAPB.png"
 var oneDayInSec = 60 * 60 * 24
 var oneMonthInSec = oneDayInSec * 30
 var oneYearInSec = oneMonthInSec * 365
