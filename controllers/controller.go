@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 	"sort"
+	"github.com/mong0520/linebot-ptt/utils"
 )
 
 func GetOne(collection *mgo.Collection, query bson.M) (result *models.ArticleDocument, err error) {
@@ -64,9 +65,11 @@ func GetRandom(collection *mgo.Collection, count int, keyword string) (results [
 	}
 	fmt.Println("count = ", count)
 	if needRandom{
-		rand.Seed(time.Now().UnixNano())
+		randSkip := utils.GetRandomIntSet(total, count)
+		//rand.Seed(time.Now().UnixNano())
 		for i := 0; i < count; i++ {
-			skip := rand.Intn(total)
+			//skip := rand.Intn(total)
+			skip := randSkip[i]
 			result := &models.ArticleDocument{}
 			collection.Find(query).Skip(skip).One(result)
 			fmt.Println(skip)

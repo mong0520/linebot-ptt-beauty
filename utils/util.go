@@ -4,6 +4,8 @@ import (
     "os"
     "log"
     "io"
+    "time"
+    "math/rand"
 )
 
 func GetLogger(f *os.File)(logger *log.Logger){
@@ -14,4 +16,11 @@ func GetLogger(f *os.File)(logger *log.Logger){
     }
 
     return logger
+}
+
+func GetRandomIntSet(max int, count int)(randInts []int){
+    rand.Seed(time.Now().UnixNano())
+    list := rand.Perm(max)
+    randInts = list[:count]
+    return randInts
 }
