@@ -17,3 +17,4 @@ db/volume
 local_run.sh
 
 vendor/*/
+build.sh
