@@ -47,10 +47,12 @@ ngrok http 8080
 
 
 * 熱門照片
+
 ![熱門照片](resource/screen2.jpg)
 
 
 * 對話直接搜尋
+
 ![對話直接搜尋](resource/screen3.jpg)
 
 ### 待辨清單:
