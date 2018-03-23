@@ -15,7 +15,8 @@ import (
 var bot *linebot.Client
 var meta *models.Model
 var maxCountOfCarousel = 10
-var defaultImage = "https://s3-ap-northeast-1.amazonaws.com/ottbuilder-neil-test/img/default.png"
+var defaultImage = "https://s3-ap-northeast-1.amazonaws.com/kks-neilwei/linebot/img/default.png"
+var defaultThumbnail = "https://s3-ap-northeast-1.amazonaws.com/kks-neilwei/linebot/img/thumbnail.png"
 var oneDayInSec = 60 * 60 * 24
 var oneMonthInSec = oneDayInSec * 30
 var oneYearInSec = oneMonthInSec * 365
@@ -129,7 +130,7 @@ func textHander(event *linebot.Event, message string) {
 }
 
 func buildButtonTemplate(title string) (template *linebot.ButtonsTemplate) {
-	template = linebot.NewButtonsTemplate("", title, "你可以試試看以下選項，或直接輸入關鍵字查詢",
+	template = linebot.NewButtonsTemplate(defaultThumbnail, title, "你可以試試看以下選項，或直接輸入關鍵字查詢",
 		linebot.NewMessageTemplateAction(ActionDailyHot, ActionDailyHot),
 		linebot.NewMessageTemplateAction(ActionMonthlyHot, ActionMonthlyHot),
 		linebot.NewMessageTemplateAction(ActionYearHot, ActionYearHot),

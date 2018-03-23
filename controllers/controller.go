@@ -45,7 +45,7 @@ func GetRandom(collection *mgo.Collection, count int, keyword string) (results [
 	query := bson.M{}
 	baseline_ts := 1420070400 // 2015年Jan/1/00:00:00 之後
 	if keyword == "" {
-		query = bson.M{"timestamp": bson.M{"$gte": baseline_ts}, "article_title": bson.M{"$regex": bson.RegEx{".*正妹.*", ""}}}
+		query = bson.M{"timestamp": bson.M{"$gte": baseline_ts}, "article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
 	} else {
 		query = bson.M{
 			"timestamp":     bson.M{"$gte": baseline_ts},
@@ -86,9 +86,9 @@ func GetMostLike(collection *mgo.Collection, count int, timestampOffset int) (re
 		nowInSec := int(now.Unix())
 		start := nowInSec - timestampOffset
 		//{"timestamp": {"$gte":  1, "$lt": 9999999999}}
-		query = bson.M{"timestamp": bson.M{"$gte": start, "$lt": nowInSec}, "article_title": bson.M{"$regex": bson.RegEx{".*正妹.*", ""}}}
+		query = bson.M{"timestamp": bson.M{"$gte": start, "$lt": nowInSec}, "article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
 	} else {
-		query = bson.M{"article_title": bson.M{"$regex": bson.RegEx{".*正妹.*", ""}}}
+		query = bson.M{"article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
 	}
 	results, err = document.GeneralQueryAll(collection, query, "-message_count.push", count)
 	if err != nil {
