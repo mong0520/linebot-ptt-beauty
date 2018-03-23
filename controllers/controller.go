@@ -6,7 +6,6 @@ import (
 	"github.com/mong0520/linebot-ptt/models"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"math/rand"
 	"strings"
 	"time"
 	"sort"
