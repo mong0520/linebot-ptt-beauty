@@ -48,9 +48,11 @@ ngrok http 8080
 
 * 熱門照片
 
+<img src="resource/screen2.jpg" height="480">
 
 
 * 對話直接搜尋
 
+<img src="resource/screen2.jpg" height="480">
 
 ### 待辨清單:
