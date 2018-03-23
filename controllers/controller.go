@@ -55,6 +55,7 @@ func GetRandom(collection *mgo.Collection, count int, keyword string) (results [
 	}
 
 	total, _ := collection.Find(query).Count()
+	fmt.Println("total = ", total)
 	if total == 0 {
 		return nil, errors.New("NotFound")
 	}else if total < count{
