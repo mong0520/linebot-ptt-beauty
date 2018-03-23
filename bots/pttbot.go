@@ -20,6 +20,8 @@ var defaultThumbnail = "https://i.imgur.com/StcRAPB.png"
 var oneDayInSec = 60 * 60 * 24
 var oneMonthInSec = oneDayInSec * 30
 var oneYearInSec = oneMonthInSec * 365
+var SSLCertPath = "/etc/dehydrated/certs/nt1.me/fullchain.pem"
+var SSLPrivateKeyPath = "/etc/dehydrated/certs/nt1.me/privkey.pem"
 
 // EventType constants
 const (
@@ -54,7 +56,7 @@ func InitLineBot(m *models.Model) {
 	m.Log.Printf("Run Mode = %s\n", runMode)
 	if strings.ToLower(runMode) == ModeHttps {
 		m.Log.Printf("Secure listen on %s with \n", addr)
-		http.ListenAndServeTLS(addr, "/etc/dehydrated/certs/nt1.me/fullchain.pem", "/etc/dehydrated/certs/nt1.me/privkey.pem", nil)
+		http.ListenAndServeTLS(addr, SSLCertPath, SSLPrivateKeyPath, nil)
 	} else {
 		m.Log.Printf("Listen on %s\n", addr)
 		http.ListenAndServe(addr, nil)
@@ -75,29 +77,31 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
-
-			userDisplayName := ""
-			res, err := bot.GetProfile(event.Source.UserID).Do()
-			if err != nil {
-				//fmt.Println(err)
-				userDisplayName = "Unknown"
-			} else {
-				//fmt.Println(res.DisplayName)
-				userDisplayName = res.DisplayName
-			}
+			userDisplayName := getUserNameById(event.Source.UserID)
 			meta.Log.Printf("Receieve Event Type = %s from User [%s](%s), or Room [%s] or Group [%s]\n",
 				event.Type, userDisplayName, event.Source.UserID, event.Source.RoomID, event.Source.GroupID)
 
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				meta.Log.Println("Content = ", message.Text)
+				meta.Log.Println("Text = ", message.Text)
 				textHander(event, message.Text)
+			default:
+				meta.Log.Println("Unimplemented handler for event type ", event.Type)
 			}
 		} else if event.Type == linebot.EventTypePostback {
 			meta.Log.Println("got a postback event")
 		} else {
 			meta.Log.Printf("got a %s event\n", event.Type)
 		}
+	}
+}
+
+func getUserNameById(userId string)(userDisplayName string){
+	res, err := bot.GetProfile(userId).Do()
+	if err != nil {
+		userDisplayName = "Unknown"
+	} else {
+		userDisplayName = res.DisplayName
 	}
 }
 
@@ -114,7 +118,7 @@ func textHander(event *linebot.Event, message string) {
 		template := buildButtonTemplate(DefaultTitle)
 		sendButtonMessage(event, template)
 	default:
-		// event is from a user
+		// receieve an undefined text and event is from a user
 		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == ""{
 			if template := buildCarouseTemplate(message); template != nil {
 				sendCarouselMessage(event, template)
@@ -122,9 +126,6 @@ func textHander(event *linebot.Event, message string) {
 				template := buildButtonTemplate(ErrorNotFound)
 				sendButtonMessage(event, template)
 			}
-		} else {
-			// event is from room or group
-			meta.Log.Println(message)
 		}
 	}
 }
@@ -138,18 +139,6 @@ func buildButtonTemplate(title string) (template *linebot.ButtonsTemplate) {
 	)
 	return template
 }
-
-//func buildResponse() (resp string) {
-//	results, _ := controllers.GetMostLike(meta.Collection, maxCountOfCarousel)
-//	var buffer bytes.Buffer
-//	buffer.WriteString("今日熱門表特\n")
-//	for _, r := range results {
-//		buffer.WriteString(fmt.Sprintf("推文數: {%d}, 標題: {%s}, 網址: {%s}\n", r.MessageCount.All, r.ArticleTitle, r.URL))
-//	}
-//	resp = buffer.String()
-//	log.Println(resp)
-//	return resp
-//}
 
 func sendTextMessage(event *linebot.Event, text string) {
 	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
@@ -188,7 +177,6 @@ func buildCarouseTemplate(action string) (template *linebot.CarouselTemplate) {
 	case ActionRandom:
 		results, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel, "")
 	default:
-		meta.Log.Println("Get keyword", action)
 		results, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel, action)
 	}
 
