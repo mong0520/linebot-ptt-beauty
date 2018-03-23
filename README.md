@@ -1,6 +1,6 @@
 # Line 聊天機器人 for PTT Beauty 版
 
-# 如何加入聊天機器人
+>如何加入聊天機器人
 
 [<img src="resource/qr_code.png">](https://line.me/R/ti/p/SFXWQpzdaY)
 
