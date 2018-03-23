@@ -53,6 +53,6 @@ ngrok http 8080
 
 * 對話直接搜尋
 
-<img src="resource/screen2.jpg" height="480">
+<img src="resource/screen3.jpg" height="480">
 
 ### 待辨清單:
