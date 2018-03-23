@@ -103,6 +103,7 @@ func getUserNameById(userId string)(userDisplayName string){
 	} else {
 		userDisplayName = res.DisplayName
 	}
+	return userDisplayName
 }
 
 func textHander(event *linebot.Event, message string) {
