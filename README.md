@@ -1,5 +1,11 @@
 # Line 聊天機器人 for PTT Beauty 版
 
+# 如何加入聊天機器人
+
+![QR Code](resource/qr_code.jpg)
+
+---
+
 # 安裝
 
 ```
