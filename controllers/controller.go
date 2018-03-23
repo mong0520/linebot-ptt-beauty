@@ -51,7 +51,8 @@ func GetRandom(collection *mgo.Collection, count int, keyword string) (results [
 	} else {
 		query = bson.M{
 			"timestamp":     bson.M{"$gte": baseline_ts},
-			"article_title": bson.M{"$regex": bson.RegEx{fmt.Sprintf(".*%s.*", strings.ToLower(keyword)), ""}}}
+			"article_title": bson.M{"$regex": bson.RegEx{fmt.Sprintf("^(?!\\[公告\\]).*%s.*", strings.ToLower(keyword)), ""}}}
+			// not start with [公告]
 	}
 
 	total, _ := collection.Find(query).Count()
