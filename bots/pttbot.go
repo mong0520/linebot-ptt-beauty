@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var bot *linebot.Client
@@ -90,6 +91,14 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		} else if event.Type == linebot.EventTypePostback {
 			meta.Log.Println("got a postback event")
+			meta.Log.Println(event.Postback.Data)
+			if template := buildImgCarousTemplate(event.Postback.Data); template != nil {
+				sendImgCarouseMessage(event, template)
+			} else {
+				template := buildButtonTemplate(ErrorNotFound)
+				sendButtonMessage(event, template)
+			}
+
 		} else {
 			meta.Log.Printf("got a %s event\n", event.Type)
 		}
@@ -163,7 +172,44 @@ func findImageInContent(content string) (img string) {
 	} else {
 		return defaultImage
 	}
+}
 
+func findImagesInContent(content string) (finalList []string) {
+	imgs := xurls.Relaxed().FindAllString(content, -1)
+	if imgs != nil {
+		for _, img := range imgs {
+			if strings.HasSuffix(strings.ToLower(img), "jpg") {
+				img = strings.Replace(img, "http://", "https://", -1)
+			}else{
+				img := imgs[0] + ".jpg"
+				img = strings.Replace(img, "http://", "https://", -1)
+			}
+			finalList = append(finalList, img)
+		}
+		//meta.Log.Println("try to append jpg in the end")
+		return finalList
+	} else {
+		return nil
+	}
+}
+
+func buildImgCarousTemplate(articleId string) (template *linebot.ImageCarouselTemplate){
+	query := bson.M{"article_id": articleId}
+	result, _ := controllers.GetOne(meta.Collection, query)
+	urls := findImagesInContent(result.Content)
+	columnList := []*linebot.ImageCarouselColumn{}
+	if len(urls) > 10{
+		urls = urls[0:10]
+	}
+	for _, url := range urls{
+		tmpColumn := linebot.NewImageCarouselColumn(
+			url,
+			linebot.NewURITemplateAction(ActionClick, url),
+		)
+		columnList = append(columnList, tmpColumn)
+	}
+	template = linebot.NewImageCarouselTemplate(columnList...)
+	return template
 }
 
 func buildCarouseTemplate(action string) (template *linebot.CarouselTemplate) {
@@ -186,28 +232,31 @@ func buildCarouseTemplate(action string) (template *linebot.CarouselTemplate) {
 	if len(results) == 0 {
 		return nil
 	}
-	for idx, result := range results {
+	for _, result := range results {
 		//meta.Log.Printf("%+v", result)
 		//thumnailUrl := "https://c1.sd"
 		thumnailUrl := findImageInContent(result.Content)
+		thumnailUrls := findImagesInContent(result.Content)
+		lable := fmt.Sprintf("所有圖片 (%d)", len(thumnailUrls))
 		title := result.ArticleTitle
 		text := fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo)
 		if len(title) >= 40 {
 			title = title[0:39]
 		}
-		meta.Log.Println("===============", idx)
-		meta.Log.Println("Thumbnail Url = ", thumnailUrl)
-		meta.Log.Println("Title = ", title)
-		meta.Log.Println("Text = ", text)
-		meta.Log.Println("URL = ", result.URL)
-		meta.Log.Println("===============", idx)
+		//meta.Log.Println("===============", idx)
+		//meta.Log.Println("Thumbnail Url = ", thumnailUrl)
+		//meta.Log.Println("Title = ", title)
+		//meta.Log.Println("Text = ", text)
+		//meta.Log.Println("URL = ", result.URL)
+		//meta.Log.Println("===============", idx)
 		tmpColumn := linebot.NewCarouselColumn(
 			thumnailUrl,
 			title,
 			text,
 			linebot.NewURITemplateAction(ActionClick, result.URL),
 			linebot.NewMessageTemplateAction(ActionRandom, ActionRandom),
-			linebot.NewMessageTemplateAction(ActionHelp, ActionHelp),
+			linebot.NewPostbackTemplateAction(lable, result.ArticleID, "", ""),
+			//linebot.NewMessageTemplateAction(ActionHelp, ActionHelp),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
@@ -229,8 +278,10 @@ func sendButtonMessage(event *linebot.Event, template *linebot.ButtonsTemplate) 
 	}
 }
 
-//func sendImgCarouseMessage(event *linebot.Event, template *linebot.ImageCarouselTemplate) {
-//	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("Carousel alt text", template)).Do(); err != nil {
-//		meta.Log.Println(err)
-//	}
-//}
+func sendImgCarouseMessage(event *linebot.Event, template *linebot.ImageCarouselTemplate) {
+	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("Carousel alt text", template)).Do(); err != nil {
+		meta.Log.Println(err)
+	}else{
+		meta.Log.Println("Success")
+	}
+}
