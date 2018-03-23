@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+	"sort"
 )
 
 func GetOne(collection *mgo.Collection, query bson.M) (result *models.ArticleDocument, err error) {
@@ -44,6 +45,7 @@ func GetRandom(collection *mgo.Collection, count int, keyword string) (results [
 	//log.Println("here")
 	query := bson.M{}
 	baseline_ts := 1420070400 // 2015年Jan/1/00:00:00 之後
+	needRandom := true
 	if keyword == "" {
 		query = bson.M{"timestamp": bson.M{"$gte": baseline_ts}, "article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
 	} else {
@@ -57,18 +59,26 @@ func GetRandom(collection *mgo.Collection, count int, keyword string) (results [
 		return nil, errors.New("NotFound")
 	}else if total < count{
 		count = total
+		needRandom = false
 	}
-	//fmt.Println("Total = ", total)
-	rand.Seed(time.Now().UnixNano())
-	for i := 0; i < count; i++ {
-		skip := rand.Intn(total)
-		//skip = 2
-		//fmt.Println(skip)
-		result := &models.ArticleDocument{}
-		collection.Find(query).Skip(skip).One(result)
-		//fmt.Println(result.ArticleTitle)
-		results = append(results, *result)
+	fmt.Println("count = ", count)
+	if needRandom{
+		rand.Seed(time.Now().UnixNano())
+		for i := 0; i < count; i++ {
+			skip := rand.Intn(total)
+			result := &models.ArticleDocument{}
+			collection.Find(query).Skip(skip).One(result)
+			//fmt.Println(result.ArticleTitle)
+			results = append(results, *result)
+		}
+		sort.Slice(results, func(i, j int) bool {
+			return results[i].MessageCount.Push > results[j].MessageCount.Push
+		})
+	}else{
+		document := &models.ArticleDocument{}
+		results, err = document.GeneralQueryAll(collection, query, "-message_count.push", count)
 	}
+
 
 	if err != nil {
 		return nil, err
