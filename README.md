@@ -43,7 +43,7 @@ ngrok http 8080
 
 * 功能選單
 
-![](resource/screen1.jpg | width=250)
+<img src="resource/screen1.jpg" height="24">
 
 
 * 熱門照片
