@@ -90,7 +90,7 @@ func GetMostLike(collection *mgo.Collection, count int, timestampOffset int) (re
 	} else {
 		query = bson.M{"article_title": bson.M{"$regex": bson.RegEx{".*正妹.*", ""}}}
 	}
-	results, err = document.GeneralQueryAll(collection, query, "-message_count.all", count)
+	results, err = document.GeneralQueryAll(collection, query, "-message_count.push", count)
 	if err != nil {
 		//fmt.Println(err)
 		return nil, err

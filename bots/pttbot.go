@@ -25,13 +25,14 @@ const (
 	DefaultTitle	 string = "💋表特看看"
 	ActionDailyHot   string = "📈 本日熱門"
 	ActionMonthlyHot string = "🔥 近期熱門" //改成近期隨機, 先選出100個，然後隨機吐10筆
-	ActionYearHot    string = "👑 年度熱門"
-	ActionRandom     string = "👧 隨機"
+	ActionYearHot    string = "🏆 年度熱門"
+	ActionRandom     string = "👩 隨機"
 	ActionClick      string = "👉 點我打開"
-	ActionHelp       string = "/show"
+	ActionHelp       string = "||| 選單"
 	ModeHttp         string = "http"
 	ModeHttps        string = "https"
 	ErrorNotFound    string = "找不到關鍵字"
+	AltText 		 string = "正妹只在手機上"
 )
 
 func InitLineBot(m *models.Model) {
@@ -133,7 +134,6 @@ func buildButtonTemplate(title string) (template *linebot.ButtonsTemplate) {
 		linebot.NewMessageTemplateAction(ActionMonthlyHot, ActionMonthlyHot),
 		linebot.NewMessageTemplateAction(ActionYearHot, ActionYearHot),
 		linebot.NewMessageTemplateAction(ActionRandom, ActionRandom),
-		//linebot.NewMessageTemplateAction("美腿", "美腿"),
 	)
 	return template
 }
@@ -201,23 +201,23 @@ func buildCarouseTemplate(action string) (template *linebot.CarouselTemplate) {
 		//thumnailUrl := "https://c1.sd"
 		thumnailUrl := findImageInContent(result.Content)
 		title := result.ArticleTitle
+		text := fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo)
 		if len(title) >= 40 {
 			title = title[0:39]
 		}
 		meta.Log.Println("===============", idx)
 		meta.Log.Println(thumnailUrl)
 		meta.Log.Println(title)
-		meta.Log.Printf("%d 😍\t%d 😡\n", result.MessageCount.Push, result.MessageCount.Boo)
+		meta.Log.Println(text)
 		meta.Log.Println(result.URL)
 		meta.Log.Println("===============", idx)
 		tmpColumn := linebot.NewCarouselColumn(
 			thumnailUrl,
 			title,
-			fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo),
+			text,
 			linebot.NewURITemplateAction(ActionClick, result.URL),
-			//linebot.NewMessageTemplateAction(ActionMonthlyHot, ActionMonthlyHot),
 			linebot.NewMessageTemplateAction(ActionRandom, ActionRandom),
-			linebot.NewMessageTemplateAction("回選單", ActionHelp),
+			linebot.NewMessageTemplateAction(ActionHelp, ActionHelp),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
@@ -228,13 +228,13 @@ func buildCarouseTemplate(action string) (template *linebot.CarouselTemplate) {
 }
 
 func sendCarouselMessage(event *linebot.Event, template *linebot.CarouselTemplate) {
-	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("Carousel alt text", template)).Do(); err != nil {
+	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(AltText, template)).Do(); err != nil {
 		meta.Log.Println(err)
 	}
 }
 
 func sendButtonMessage(event *linebot.Event, template *linebot.ButtonsTemplate) {
-	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("Carousel alt text", template)).Do(); err != nil {
+	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(AltText, template)).Do(); err != nil {
 		meta.Log.Println(err)
 	}
 }
