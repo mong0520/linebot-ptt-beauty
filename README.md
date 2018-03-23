@@ -1,4 +1,4 @@
-# Line 聊天機器人 for PTT Beauty 版
+=250x# Line 聊天機器人 for PTT Beauty 版
 
 ## For User
 
@@ -43,16 +43,16 @@ ngrok http 8080
 
 * 功能選單
 
-![功能選單](resource/screen1.jpg)
+![功能選單](resource/screen1.jpg =250x)
 
 
 * 熱門照片
 
-![熱門照片](resource/screen2.jpg)
+![熱門照片](resource/screen2.jpg =250x)
 
 
 * 對話直接搜尋
 
-![對話直接搜尋](resource/screen3.jpg)
+![對話直接搜尋](resource/screen3.jpg =250x)
 
 ### 待辨清單:
