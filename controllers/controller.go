@@ -28,7 +28,7 @@ func Get(collection *mgo.Collection, page int, perPage int) (results []models.Ar
 	query := bson.M{"article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
 	//document := &models.ArticleDocument{}
 	//results, err = document.GeneralQueryAll(collection, query, "", -1)
-	err = collection.Find(query).Skip(page*perPage).Limit(perPage).All(&results)
+	err = collection.Find(query).Sort("-timestamp").Skip(page*perPage).Limit(perPage).All(&results)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

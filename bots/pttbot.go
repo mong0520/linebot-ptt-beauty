@@ -173,7 +173,7 @@ func actionNewest(event *linebot.Event, values url.Values) {
 		previousText := fmt.Sprintf("上一頁 %d", previousPage)
 		nextText := fmt.Sprintf("下一頁 %d", nextPage)
 		tmpColumn := linebot.NewCarouselColumn(
-			defaultImage,
+			defaultThumbnail,
 			DefaultTitle,
 			"繼續看？",
 			linebot.NewMessageTemplateAction(ActionHelp, ActionHelp),
@@ -193,11 +193,11 @@ func getCarouseTemplate(records []models.ArticleDocument) (template *linebot.Car
 
 	columnList := []*linebot.CarouselColumn{}
 	for _, result := range records {
-		thumnailUrl := defaultThumbnail
+		thumnailUrl := defaultImage
 		imgUrlCounts := len(result.ImageLinks)
-		lable := fmt.Sprintf("所有圖片 (%d)", imgUrlCounts)
+		lable := fmt.Sprintf("%s (%d)",ActionAllImage,  imgUrlCounts)
 		title := result.ArticleTitle
-		postBackData := fmt.Sprintf("action=%s&article_id=%s", "所有圖片", result.ArticleID)
+		postBackData := fmt.Sprintf("action=%s&article_id=%s", ActionAllImage, result.ArticleID)
 		text := fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo)
 
 		if imgUrlCounts > 0 {
@@ -212,12 +212,13 @@ func getCarouseTemplate(records []models.ArticleDocument) (template *linebot.Car
 		//meta.Log.Println("Text = ", text)
 		//meta.Log.Println("URL = ", result.URL)
 		//meta.Log.Println("===============", idx)
+		dataRandom := fmt.Sprintf("action=%s", ActionRandom)
 		tmpColumn := linebot.NewCarouselColumn(
 			thumnailUrl,
 			title,
 			text,
 			linebot.NewURITemplateAction(ActionClick, result.URL),
-			linebot.NewMessageTemplateAction(ActionRandom, ActionRandom),
+			linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
 			linebot.NewPostbackTemplateAction(lable, postBackData, "", ""),
 		)
 		columnList = append(columnList, tmpColumn)
@@ -291,7 +292,8 @@ func getImgCarousTemplate(articleId string) (template *linebot.ImageCarouselTemp
 	for _, url := range urls {
 		tmpColumn := linebot.NewImageCarouselColumn(
 			url,
-			linebot.NewURITemplateAction(ActionClick, url),
+			//linebot.NewURITemplateAction(ActionClick, url),
+			linebot.NewURITemplateAction(ActionClick, result.URL),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
