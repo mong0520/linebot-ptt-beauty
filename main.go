@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/mong0520/linebot-ptt/models"
+	"github.com/mong0520/linebot-ptt-beauty/models"
 	"gopkg.in/mgo.v2"
 	"log"
-	"github.com/mong0520/linebot-ptt/bots"
-	"github.com/mong0520/linebot-ptt/utils"
+	"github.com/mong0520/linebot-ptt-beauty/bots"
+	"github.com/mong0520/linebot-ptt-beauty/utils"
 	"os"
 	"path"
 )
@@ -24,6 +24,7 @@ func initDB() {
 	} else {
 		meta.Session = session
 		meta.Collection = session.DB("ptt").C("beauty")
+		meta.CollectionUserFavorite = session.DB("ptt").C("users")
 	}
 }
 

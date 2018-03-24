@@ -3,14 +3,19 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	"github.com/mong0520/linebot-ptt/models"
+	"github.com/mong0520/linebot-ptt-beauty/models"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"strings"
 	"time"
 	"sort"
-	"github.com/mong0520/linebot-ptt/utils"
+	"github.com/mong0520/linebot-ptt-beauty/utils"
 )
+
+type UserFavorite struct {
+    UserId    string   `json:"user_id" bson:"user_id"`
+    Favorites []string `json:"favorites" bson:"favorites"`
+}
 
 func GetOne(collection *mgo.Collection, query bson.M) (result *models.ArticleDocument, err error) {
 	//query := bson.M{"article_id": "M.1521548086.A.DCA"}
@@ -126,4 +131,32 @@ func GetMostLike(collection *mgo.Collection, count int, timestampOffset int) (re
 	} else {
 		return results, nil
 	}
+}
+
+func (u *UserFavorite) Add(meta *models.Model) {
+    if err := meta.CollectionUserFavorite.Insert(u) ; err != nil{
+        meta.Log.Println(err)
+    }
+}
+
+func (u *UserFavorite) Get(meta *models.Model) (result *UserFavorite, err error){
+    meta.Log.Println(u.UserId)
+    query := bson.M{"user_id": u.UserId}
+    if err := meta.CollectionUserFavorite.Find(query).One(&result) ; err != nil{
+        meta.Log.Println(err)
+        return nil, err
+    }else{
+        return result, nil
+    }
+}
+
+func (u *UserFavorite) Update(meta *models.Model) (err error){
+    meta.Log.Println(u.UserId)
+    query := bson.M{"user_id": u.UserId}
+    if err := meta.CollectionUserFavorite.Update(query, u) ; err != nil{
+        meta.Log.Println(err)
+        return err
+    }else{
+        return nil
+    }
 }

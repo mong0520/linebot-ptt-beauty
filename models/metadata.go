@@ -7,10 +7,13 @@ import (
 	"log"
 )
 
+
+
 type Model struct {
-	Session    *mgo.Session
-	Collection *mgo.Collection
-	Log        *log.Logger
+	Session                *mgo.Session
+	Collection             *mgo.Collection
+	CollectionUserFavorite *mgo.Collection
+	Log                    *log.Logger
 }
 
 type MessageCount struct {

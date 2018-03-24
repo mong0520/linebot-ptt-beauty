@@ -3,8 +3,8 @@ package bots
 import (
 	"fmt"
 	"github.com/line/line-bot-sdk-go/linebot"
-	"github.com/mong0520/linebot-ptt/controllers"
-	"github.com/mong0520/linebot-ptt/models"
+	"github.com/mong0520/linebot-ptt-beauty/controllers"
+	"github.com/mong0520/linebot-ptt-beauty/models"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 	"net/http"
@@ -12,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"github.com/mong0520/linebot-ptt-beauty/utils"
 )
 
 var bot *linebot.Client
@@ -25,20 +26,24 @@ var oneYearInSec = oneMonthInSec * 365
 var SSLCertPath = "/etc/dehydrated/certs/nt1.me/fullchain.pem"
 var SSLPrivateKeyPath = "/etc/dehydrated/certs/nt1.me/privkey.pem"
 
+
+
 // EventType constants
 const (
 	DefaultTitle string = "💋表特看看"
 
 	// 應該把 action 和 lable 分開
-	ActionQuery      string = "一般查詢"
-	ActionNewest     string = "🎊 最新表特"
-	ActionDailyHot   string = "📈 本日熱門"
-	ActionMonthlyHot string = "🔥 近期熱門" //改成近期隨機, 先選出100個，然後隨機吐10筆
-	ActionYearHot    string = "🏆 年度熱門"
-	ActionRandom     string = "👩 隨機十連抽"
-	ActionClick      string = "👉 點我打開"
-	ActionHelp       string = "||| 選單"
-	ActionAllImage   string = "預覽圖片"
+	ActionQuery       string = "一般查詢"
+	ActionNewest      string = "🎊 最新表特"
+	ActionDailyHot    string = "📈 本日熱門"
+	ActionMonthlyHot  string = "🔥 近期熱門" //改成近期隨機, 先選出100個，然後隨機吐10筆
+	ActionYearHot     string = "🏆 年度熱門"
+	ActionRandom      string = "👩 隨機十連抽"
+	ActionAddFavorite string = "加入最愛"
+	ActionClick       string = "👉 點我打開"
+	ActionHelp        string = "表特選單"
+	ActionAllImage    string = "預覽圖片"
+	ActonShowFav	  string = "顯示最愛"
 
 	ModeHttp  string = "http"
 	ModeHttps string = "https"
@@ -114,24 +119,82 @@ func actionHandler(event *linebot.Event, action string, values url.Values) {
 		actionAllImage(event, values)
 	case ActionQuery, ActionRandom:
 		actionGeneral(event, action, values)
+	case ActionAddFavorite:
+		actinoAddFavorite(event, action, values)
+	case ActonShowFav:
+		actionShowFavorite(event, action, values)
 	default:
 		meta.Log.Println("Unimplement action handler", action)
 	}
 }
 
+func actinoAddFavorite(event *linebot.Event, action string, values url.Values) {
+	toggleMessage := ""
+	userId := values.Get("user_id")
+	newFavoriteArticle := values.Get("article_id")
+	userFavorite :=  &controllers.UserFavorite{
+		UserId: userId,
+		Favorites: []string{newFavoriteArticle},
+	}
+	latestFavArticles := []string{}
+	if record, err := userFavorite.Get(meta) ; err != nil{
+		meta.Log.Println("User data is not created, create a new one")
+		userFavorite.Add(meta)
+		latestFavArticles = append(latestFavArticles, newFavoriteArticle)
+	}else{
+		meta.Log.Println("Record found, update it", record)
+		oldRecords := record.Favorites
+		if exist, idx :=utils.InArray(newFavoriteArticle, oldRecords); exist == true{
+			meta.Log.Println("已存在，移除")
+			oldRecords = utils.RemoveStringItem(oldRecords, idx)
+			toggleMessage = "已從最愛中移除"
+		}else {
+			oldRecords = append(oldRecords, newFavoriteArticle)
+			toggleMessage = "已從新增至最愛"
+		}
+		latestFavArticles = oldRecords
+		userFavorite.Favorites = oldRecords
+		userFavorite.Update(meta)
+	}
+	sendTextMessage(event, toggleMessage)
+}
+
+func actionShowFavorite(event *linebot.Event, action string, values url.Values) {
+	userFavorite :=  &controllers.UserFavorite{
+		UserId: values.Get("user_id"),
+		Favorites: []string{},
+	}
+	userData, _ := userFavorite.Get(meta)
+	favDocuments := []models.ArticleDocument{}
+	for _, favArticleId := range userData.Favorites{
+		query := bson.M{"article_id": favArticleId}
+		tmpRecord, _ := controllers.GetOne(meta.Collection, query)
+		favDocuments = append(favDocuments, *tmpRecord)
+	}
+	if len(favDocuments) == 0 {
+		sendTextMessage(event, "尚無最愛")
+	}else{
+		template := getCarouseTemplate(event.Source.UserID, favDocuments)
+		sendCarouselMessage(event, template)
+	}
+}
+
 func actionGeneral(event *linebot.Event, action string, values url.Values) {
 	meta.Log.Println("Enter actionGeneral, action = ", action)
+	meta.Log.Println("Enter actionGeneral, values = ", values)
 	records := []models.ArticleDocument{}
 	switch action {
 	case ActionQuery:
-		tsOffset, _ := strconv.Atoi(values.Get("peroid"))
+		//meta.Log.Println(values.Get("period"))
+		tsOffset, _ := strconv.Atoi(values.Get("period"))
+		meta.Log.Println("timestampe off set = ", tsOffset)
 		records, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, tsOffset)
 	case ActionRandom:
 		records, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel, "")
 	default:
 		return
 	}
-	template := getCarouseTemplate(records)
+	template := getCarouseTemplate(event.Source.UserID, records)
 	if template != nil {
 		sendCarouselMessage(event, template)
 	}
@@ -156,7 +219,7 @@ func actionNewest(event *linebot.Event, values url.Values) {
 		meta.Log.Println("Unable to parse parameters", values)
 	} else {
 		records, _ := controllers.Get(meta.Collection, currentPage, columnCount)
-		template := getCarouseTemplate(records)
+		template := getCarouseTemplate(event.Source.UserID, records)
 
 		if template == nil {
 			meta.Log.Println("Unable to get template", values)
@@ -187,13 +250,25 @@ func actionNewest(event *linebot.Event, values url.Values) {
 	}
 }
 
-func getCarouseTemplate(records []models.ArticleDocument) (template *linebot.CarouselTemplate) {
+func getCarouseTemplate(userId string, records []models.ArticleDocument) (template *linebot.CarouselTemplate) {
 	if len(records) == 0 {
 		return nil
 	}
 
 	columnList := []*linebot.CarouselColumn{}
+	userFavorite :=  &controllers.UserFavorite{
+		UserId: userId,
+		Favorites: []string{},
+	}
+	userData, _ := userFavorite.Get(meta)
+	favLabel := ""
+
 	for _, result := range records {
+		if exist, _ :=utils.InArray(result.ArticleID, userData.Favorites); exist == true{
+			favLabel = "移除最愛"
+		}else{
+			favLabel = "加入最愛"
+		}
 		thumnailUrl := defaultImage
 		imgUrlCounts := len(result.ImageLinks)
 		lable := fmt.Sprintf("%s (%d)", ActionAllImage, imgUrlCounts)
@@ -213,14 +288,18 @@ func getCarouseTemplate(records []models.ArticleDocument) (template *linebot.Car
 		//meta.Log.Println("Text = ", text)
 		//meta.Log.Println("URL = ", result.URL)
 		//meta.Log.Println("===============", idx)
-		dataRandom := fmt.Sprintf("action=%s", ActionRandom)
+		//dataRandom := fmt.Sprintf("action=%s", ActionRandom)
+		dataAddFavorite := fmt.Sprintf("action=%s&user_id=%s&article_id=%s",
+			ActionAddFavorite, userId, result.ArticleID)
+		// chdeck if this result in user's favorite, if yes, change lable
 		tmpColumn := linebot.NewCarouselColumn(
 			thumnailUrl,
 			title,
 			text,
 			linebot.NewURITemplateAction(ActionClick, result.URL),
 			linebot.NewPostbackTemplateAction(lable, postBackData, "", ""),
-			linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
+			//linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
+			linebot.NewPostbackTemplateAction(favLabel, dataAddFavorite, "", ""),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
@@ -248,30 +327,61 @@ func getUserNameById(userId string) (userDisplayName string) {
 func textHander(event *linebot.Event, message string) {
 	switch message {
 	case ActionHelp:
-		template := getMenuButtonTemplate(DefaultTitle)
-		sendButtonMessage(event, template)
+		template := getMenuButtonTemplateV2(event, DefaultTitle)
+		sendCarouselMessage(event, template)
 	default:
-		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == ""{
+		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == "" {
 			records, _ := controllers.GetRandom(meta.Collection, maxCountOfCarousel, message)
 			if records != nil && len(records) > 0 {
-				template := getCarouseTemplate(records)
+				template := getCarouseTemplate(event.Source.UserID, records)
 				sendCarouselMessage(event, template)
 			} else {
-				template := getMenuButtonTemplate(DefaultTitle)
-				sendButtonMessage(event, template)
+				template := getMenuButtonTemplateV2(event, DefaultTitle)
+				sendCarouselMessage(event, template)
 			}
 		}
 	}
 }
 
-func getMenuButtonTemplate(title string) (template *linebot.ButtonsTemplate) {
+func getMenuButtonTemplateV2(event *linebot.Event, title string) (template *linebot.CarouselTemplate) {
+	columnList := []*linebot.CarouselColumn{}
 	dataNewlest := fmt.Sprintf("action=%s&page=0", ActionNewest)
 	dataRandom := fmt.Sprintf("action=%s", ActionRandom)
 	dataQuery := fmt.Sprintf("action=%s", ActionQuery)
+	dataShowFav := fmt.Sprintf("action=%s&user_id=%s", ActonShowFav, event.Source.UserID)
+
+	menu1 := linebot.NewCarouselColumn(
+		defaultThumbnail,
+		title,
+		"你可以試試看以下選項，或直接輸入關鍵字查詢",
+		linebot.NewPostbackTemplateAction(ActionNewest, dataNewlest, "", ""),
+		linebot.NewPostbackTemplateAction(ActionDailyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneDayInSec), "", ""),
+		linebot.NewPostbackTemplateAction(ActonShowFav, dataShowFav, "", ""),
+
+	)
+	menu2 := linebot.NewCarouselColumn(
+		defaultThumbnail,
+		title,
+		"你可以試試看以下選項，或直接輸入關鍵字查詢",
+		linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
+		linebot.NewPostbackTemplateAction(ActionMonthlyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneMonthInSec), "", ""),
+		linebot.NewPostbackTemplateAction(ActionYearHot, dataQuery + "&period="+fmt.Sprintf("%d", oneYearInSec), "", ""),
+	)
+	columnList = append(columnList, menu1, menu2)
+	template = linebot.NewCarouselTemplate(columnList...)
+	return template
+}
+
+func getMenuButtonTemplate(event *linebot.Event, title string) (template *linebot.ButtonsTemplate) {
+	dataNewlest := fmt.Sprintf("action=%s&page=0", ActionNewest)
+	dataRandom := fmt.Sprintf("action=%s", ActionRandom)
+	dataQuery := fmt.Sprintf("action=%s", ActionQuery)
+	dataShowFav := fmt.Sprintf("action=%s&user_id=%s", ActonShowFav, event.Source.UserID)
 	template = linebot.NewButtonsTemplate(defaultThumbnail, title, "你可以試試看以下選項，或直接輸入關鍵字查詢",
 		linebot.NewPostbackTemplateAction(ActionNewest, dataNewlest, "", ""),
-		linebot.NewPostbackTemplateAction(ActionDailyHot, dataQuery + "&period="+fmt.Sprintf("%d", oneDayInSec),"", ""),
-		linebot.NewPostbackTemplateAction(ActionMonthlyHot, dataQuery + "&period="+fmt.Sprintf("%d", oneMonthInSec), "", ""),
+		linebot.NewPostbackTemplateAction(ActionDailyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneDayInSec), "", ""),
+		linebot.NewPostbackTemplateAction(ActonShowFav, dataShowFav, "", ""),
+		//linebot.NewPostbackTemplateAction(ActionMonthlyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneMonthInSec), "", ""),
 		//linebot.NewPostbackTemplateAction(ActionYearHot, dataQuery + "&period="+fmt.Sprintf("%d", oneYearInSec), "", ""),
 		linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
 	)
