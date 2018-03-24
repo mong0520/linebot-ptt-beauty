@@ -38,7 +38,7 @@ const (
 	ActionRandom     string = "👩 隨機十連抽"
 	ActionClick      string = "👉 點我打開"
 	ActionHelp       string = "||| 選單"
-	ActionAllImage   string = "打開圖片"
+	ActionAllImage   string = "預覽圖片"
 
 	ModeHttp  string = "http"
 	ModeHttps string = "https"
