@@ -29,6 +29,7 @@ var SSLPrivateKeyPath = "/etc/dehydrated/certs/nt1.me/privkey.pem"
 const (
 	DefaultTitle string = "💋表特看看"
 
+	ActionQuery      string = "一般查詢"
 	ActionNewest     string = "🎊 最新表特"
 	ActionDailyHot   string = "📈 本日熱門"
 	ActionMonthlyHot string = "🔥 近期熱門" //改成近期隨機, 先選出100個，然後隨機吐10筆
@@ -110,7 +111,7 @@ func actionHandler(event *linebot.Event, action string, values url.Values) {
 		actionNewest(event, values)
 	case ActionAllImage:
 		actionAllImage(event, values)
-	case ActionDailyHot, ActionMonthlyHot, ActionYearHot, ActionRandom:
+	case ActionQuery, ActionRandom:
 		actionGeneral(event, action, values)
 	default:
 		meta.Log.Println("Unimplement action handler", action)
@@ -121,12 +122,9 @@ func actionGeneral(event *linebot.Event, action string, values url.Values) {
 	meta.Log.Println("Enter actionGeneral, action = ", action)
 	records := []models.ArticleDocument{}
 	switch action {
-	case ActionDailyHot:
-		records, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, oneDayInSec)
-	case ActionMonthlyHot:
-		records, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, oneMonthInSec)
-	case ActionYearHot:
-		records, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, oneYearInSec)
+	case ActionQuery:
+		tsOffset, _ := strconv.Atoi(values.Get("peroid"))
+		records, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, tsOffset)
 	case ActionRandom:
 		records, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel, "")
 	default:
@@ -264,14 +262,14 @@ func textHander(event *linebot.Event, message string) {
 }
 
 func getMenuButtonTemplate(title string) (template *linebot.ButtonsTemplate) {
-	dataDaily := fmt.Sprintf("action=%s", ActionDailyHot)
 	dataNewlest := fmt.Sprintf("action=%s&page=0", ActionNewest)
-	dataYear := fmt.Sprintf("action=%s", ActionYearHot)
 	dataRandom := fmt.Sprintf("action=%s", ActionRandom)
+	dataQuery := fmt.Sprintf("action=%s", ActionQuery)
 	template = linebot.NewButtonsTemplate(defaultThumbnail, title, "你可以試試看以下選項，或直接輸入關鍵字查詢",
 		linebot.NewPostbackTemplateAction(ActionNewest, dataNewlest, "", ""),
-		linebot.NewPostbackTemplateAction(ActionDailyHot, dataDaily, "", ""),
-		linebot.NewPostbackTemplateAction(ActionYearHot, dataYear, "", ""),
+		linebot.NewPostbackTemplateAction(ActionDailyHot, dataQuery + "&period="+fmt.Sprintf("%d", oneDayInSec),"", ""),
+		linebot.NewPostbackTemplateAction(ActionMonthlyHot, dataQuery + "&period="+fmt.Sprintf("%d", oneMonthInSec), "", ""),
+		//linebot.NewPostbackTemplateAction(ActionYearHot, dataQuery + "&period="+fmt.Sprintf("%d", oneYearInSec), "", ""),
 		linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
 	)
 	return template
@@ -300,91 +298,6 @@ func getImgCarousTemplate(record *models.ArticleDocument) (template *linebot.Ima
 	template = linebot.NewImageCarouselTemplate(columnList...)
 	return template
 }
-
-//
-//func buildCarouseTemplate(action string, pagination bool, currentPage int) (template *linebot.CarouselTemplate) {
-//	results := []models.ArticleDocument{}
-//	switch action {
-//	case ActionDailyHot:
-//		results, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, oneDayInSec)
-//	case ActionMonthlyHot:
-//		results, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, oneMonthInSec)
-//	case ActionYearHot:
-//		results, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, oneYearInSec)
-//	case ActionRandom:
-//		results, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel, "")
-//	case ActionNewest:
-//		results, _ = controllers.Get(meta.Collection, currentPage, 9)
-//	default:
-//		results, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel, action)
-//	}
-//
-//	columnList := []*linebot.CarouselColumn{}
-//	meta.Log.Println("Found Records: ", len(results))
-//	if len(results) == 0 {
-//		return nil
-//	}
-//	for _, result := range results {
-//		//meta.Log.Printf("%+v", result)
-//		thumnailUrl := defaultThumbnail
-//		imgUrlCounts := len(result.ImageLinks)
-//		if imgUrlCounts > 0{
-//			thumnailUrl = result.ImageLinks[0]
-//		}
-//		lable := fmt.Sprintf("所有圖片 (%d)", imgUrlCounts)
-//		title := result.ArticleTitle
-//		postBackData := fmt.Sprintf("action=%s&article_id=%s", ActionAllImage, result.ArticleID)
-//		text := fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo)
-//		if len(title) >= 40 {
-//			title = title[0:39]
-//		}
-//		//meta.Log.Println("===============", idx)
-//		//meta.Log.Println("Thumbnail Url = ", thumnailUrl)
-//		//meta.Log.Println("Title = ", title)
-//		//meta.Log.Println("Text = ", text)
-//		//meta.Log.Println("URL = ", result.URL)
-//		//meta.Log.Println("===============", idx)
-//		tmpColumn := linebot.NewCarouselColumn(
-//			thumnailUrl,
-//			title,
-//			text,
-//			linebot.NewURITemplateAction(ActionClick, result.URL),
-//			linebot.NewMessageTemplateAction(ActionRandom, ActionRandom),
-//			linebot.NewPostbackTemplateAction(lable, postBackData, "", ""),
-//			//linebot.NewMessageTemplateAction(ActionHelp, ActionHelp),
-//		)
-//		columnList = append(columnList, tmpColumn)
-//	}
-//
-//	if pagination{
-//		previousPage := currentPage - 1
-//		if previousPage < 0{
-//			previousPage = 0
-//		}
-//		nextPage := currentPage + 1
-//		previousData := fmt.Sprintf("action=%s&page=%d", ActionNewest, previousPage)
-//		nextData := fmt.Sprintf("action=%s&page=%d", ActionNewest, nextPage)
-//		previousText := fmt.Sprintf("上一頁 %d", previousPage)
-//		nextText := fmt.Sprintf("下一頁 %d", nextPage)
-//		tmpColumn := linebot.NewCarouselColumn(
-//			defaultImage,
-//			"表特看看",
-//			"繼續看？",
-//			linebot.NewPostbackTemplateAction(previousText, previousData, "", ""),
-//			linebot.NewPostbackTemplateAction(previousText, previousData, "", ""),
-//			linebot.NewPostbackTemplateAction(nextText, nextData, "", ""),
-//		)
-//		if len(columnList) >= 10{
-//			columnList[len(columnList)-1] = tmpColumn
-//		} else{
-//			columnList = append(columnList, tmpColumn)
-//		}
-//	}
-//
-//	template = linebot.NewCarouselTemplate(columnList...)
-//
-//	return template
-//}
 
 func sendCarouselMessage(event *linebot.Event, template *linebot.CarouselTemplate) {
 	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(AltText, template)).Do(); err != nil {
