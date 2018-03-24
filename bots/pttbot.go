@@ -251,13 +251,15 @@ func textHander(event *linebot.Event, message string) {
 		template := getMenuButtonTemplate(DefaultTitle)
 		sendButtonMessage(event, template)
 	default:
-		records, _ := controllers.GetRandom(meta.Collection, maxCountOfCarousel, message)
-		if records != nil && len(records) > 0 {
-			template := getCarouseTemplate(records)
-			sendCarouselMessage(event, template)
-		} else {
-			template := getMenuButtonTemplate(DefaultTitle)
-			sendButtonMessage(event, template)
+		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == ""{
+			records, _ := controllers.GetRandom(meta.Collection, maxCountOfCarousel, message)
+			if records != nil && len(records) > 0 {
+				template := getCarouseTemplate(records)
+				sendCarouselMessage(event, template)
+			} else {
+				template := getMenuButtonTemplate(DefaultTitle)
+				sendButtonMessage(event, template)
+			}
 		}
 	}
 }
