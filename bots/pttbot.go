@@ -29,7 +29,7 @@ var SSLPrivateKeyPath = "/etc/dehydrated/certs/nt1.me/privkey.pem"
 const (
 	DefaultTitle string = "💋表特看看"
 
-	ActionNewest     string = "最新表特"
+	ActionNewest     string = "🎊 最新表特"
 	ActionDailyHot   string = "📈 本日熱門"
 	ActionMonthlyHot string = "🔥 近期熱門" //改成近期隨機, 先選出100個，然後隨機吐10筆
 	ActionYearHot    string = "🏆 年度熱門"
@@ -38,10 +38,9 @@ const (
 	ActionHelp       string = "||| 選單"
 	ActionAllImage   string = "打開圖片"
 
-	ModeHttp      string = "http"
-	ModeHttps     string = "https"
-	ErrorNotFound string = "找不到關鍵字"
-	AltText       string = "正妹只在手機上"
+	ModeHttp  string = "http"
+	ModeHttps string = "https"
+	AltText   string = "正妹只在手機上"
 )
 
 func InitLineBot(m *models.Model) {
@@ -198,7 +197,7 @@ func getCarouseTemplate(records []models.ArticleDocument) (template *linebot.Car
 	for _, result := range records {
 		thumnailUrl := defaultImage
 		imgUrlCounts := len(result.ImageLinks)
-		lable := fmt.Sprintf("%s (%d)",ActionAllImage,  imgUrlCounts)
+		lable := fmt.Sprintf("%s (%d)", ActionAllImage, imgUrlCounts)
 		title := result.ArticleTitle
 		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=0", ActionAllImage, result.ArticleID)
 		text := fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo)
