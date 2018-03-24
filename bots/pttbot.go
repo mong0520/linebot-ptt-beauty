@@ -219,8 +219,8 @@ func getCarouseTemplate(records []models.ArticleDocument) (template *linebot.Car
 			title,
 			text,
 			linebot.NewURITemplateAction(ActionClick, result.URL),
-			linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
 			linebot.NewPostbackTemplateAction(lable, postBackData, "", ""),
+			linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
