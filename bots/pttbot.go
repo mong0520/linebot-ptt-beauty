@@ -29,12 +29,13 @@ var SSLPrivateKeyPath = "/etc/dehydrated/certs/nt1.me/privkey.pem"
 const (
 	DefaultTitle string = "💋表特看看"
 
+	// 應該把 action 和 lable 分開
 	ActionQuery      string = "一般查詢"
 	ActionNewest     string = "🎊 最新表特"
 	ActionDailyHot   string = "📈 本日熱門"
 	ActionMonthlyHot string = "🔥 近期熱門" //改成近期隨機, 先選出100個，然後隨機吐10筆
 	ActionYearHot    string = "🏆 年度熱門"
-	ActionRandom     string = "👩 隨機"
+	ActionRandom     string = "👩 隨機十連抽"
 	ActionClick      string = "👉 點我打開"
 	ActionHelp       string = "||| 選單"
 	ActionAllImage   string = "打開圖片"
