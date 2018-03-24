@@ -141,8 +141,11 @@ func actionGeneral(event *linebot.Event, action string, values url.Values) {
 }
 
 func actionAllImage(event *linebot.Event, values url.Values) {
+
 	if articleId := values.Get("article_id"); articleId != "" {
-		template := getImgCarousTemplate(articleId)
+		query := bson.M{"article_id": articleId}
+		result, _ := controllers.GetOne(meta.Collection, query)
+		template := getImgCarousTemplate(result)
 		sendImgCarouseMessage(event, template)
 	} else {
 		meta.Log.Println("Unable to get article id", values)
@@ -197,7 +200,7 @@ func getCarouseTemplate(records []models.ArticleDocument) (template *linebot.Car
 		imgUrlCounts := len(result.ImageLinks)
 		lable := fmt.Sprintf("%s (%d)",ActionAllImage,  imgUrlCounts)
 		title := result.ArticleTitle
-		postBackData := fmt.Sprintf("action=%s&article_id=%s", ActionAllImage, result.ArticleID)
+		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=0", ActionAllImage, result.ArticleID)
 		text := fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo)
 
 		if imgUrlCounts > 0 {
@@ -281,10 +284,8 @@ func sendTextMessage(event *linebot.Event, text string) {
 	}
 }
 
-func getImgCarousTemplate(articleId string) (template *linebot.ImageCarouselTemplate) {
-	query := bson.M{"article_id": articleId}
-	result, _ := controllers.GetOne(meta.Collection, query)
-	urls := result.ImageLinks
+func getImgCarousTemplate(record *models.ArticleDocument) (template *linebot.ImageCarouselTemplate) {
+	urls := record.ImageLinks
 	columnList := []*linebot.ImageCarouselColumn{}
 	if len(urls) > 10 {
 		urls = urls[0:10]
@@ -293,7 +294,7 @@ func getImgCarousTemplate(articleId string) (template *linebot.ImageCarouselTemp
 		tmpColumn := linebot.NewImageCarouselColumn(
 			url,
 			//linebot.NewURITemplateAction(ActionClick, url),
-			linebot.NewURITemplateAction(ActionClick, result.URL),
+			linebot.NewURITemplateAction(ActionClick, record.URL),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
