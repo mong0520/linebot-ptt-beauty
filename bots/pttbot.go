@@ -325,6 +325,14 @@ func getUserNameById(userId string) (userDisplayName string) {
 }
 
 func textHander(event *linebot.Event, message string) {
+	userFavorite :=  &controllers.UserFavorite{
+		UserId: event.Source.UserID,
+		Favorites: []string{},
+	}
+	if _, err := userFavorite.Get(meta) ; err != nil {
+		meta.Log.Println("User data is not created, create a new one")
+		userFavorite.Add(meta)
+	}
 	switch message {
 	case ActionHelp:
 		template := getMenuButtonTemplateV2(event, DefaultTitle)
