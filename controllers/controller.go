@@ -24,6 +24,19 @@ func GetOne(collection *mgo.Collection, query bson.M) (result *models.ArticleDoc
 	}
 }
 
+func Get(collection *mgo.Collection, page int, perPage int) (results []models.ArticleDocument, err error) {
+	query := bson.M{"article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
+	//document := &models.ArticleDocument{}
+	//results, err = document.GeneralQueryAll(collection, query, "", -1)
+	err = collection.Find(query).Skip(page*perPage).Limit(perPage).All(&results)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	} else {
+		return results, nil
+	}
+}
+
 func GetAll(collection *mgo.Collection, query bson.M) (results []models.ArticleDocument, err error) {
 	document := &models.ArticleDocument{}
 	results, err = document.GeneralQueryAll(collection, query, "", -1)

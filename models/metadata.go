@@ -34,6 +34,7 @@ type ArticleDocument struct {
 	Messages     []interface{} `json:"messages" bson:"messages"`
 	Timestamp    int           `json:"timestamp" bson:"timestamp"`
 	URL          string        `json:"url" bson:"url"`
+	ImageLinks   []string      `json:"image_links" bson:"image_links"`
 }
 
 func (d *ArticleDocument) GeneralQueryOne(collection *mgo.Collection, query interface{}) (result *ArticleDocument, err error) {
