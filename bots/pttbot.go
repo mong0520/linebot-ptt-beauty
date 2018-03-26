@@ -175,7 +175,7 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 		sendTextMessage(event, "尚無最愛")
 	} else {
 		template := getCarouseTemplate(event.Source.UserID, favDocuments)
-		sendCarouselMessage(event, template)
+		sendCarouselMessage(event, template, "最愛照片已送達")
 	}
 }
 
@@ -183,20 +183,23 @@ func actionGeneral(event *linebot.Event, action string, values url.Values) {
 	meta.Log.Println("Enter actionGeneral, action = ", action)
 	meta.Log.Println("Enter actionGeneral, values = ", values)
 	records := []models.ArticleDocument{}
+	label := ""
 	switch action {
 	case ActionQuery:
 		//meta.Log.Println(values.Get("period"))
 		tsOffset, _ := strconv.Atoi(values.Get("period"))
 		meta.Log.Println("timestampe off set = ", tsOffset)
 		records, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, tsOffset)
+		label = "已幫您查詢到一些照片~"
 	case ActionRandom:
 		records, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel, "")
+		label = "隨機表特已送到囉"
 	default:
 		return
 	}
 	template := getCarouseTemplate(event.Source.UserID, records)
 	if template != nil {
-		sendCarouselMessage(event, template)
+		sendCarouselMessage(event, template, label)
 	}
 
 }
@@ -245,7 +248,7 @@ func actionNewest(event *linebot.Event, values url.Values) {
 		)
 		template.Columns = append(template.Columns, tmpColumn)
 
-		sendCarouselMessage(event, template)
+		sendCarouselMessage(event, template, "熱騰騰的最新照片送到了!")
 	}
 }
 
@@ -336,20 +339,20 @@ func textHander(event *linebot.Event, message string) {
 	switch message {
 	case ActionHelp:
 		template := getMenuButtonTemplateV2(event, DefaultTitle)
-		sendCarouselMessage(event, template)
+		sendCarouselMessage(event, template, "我能為您做什麼？")
 	case ActionRandom:
 		records, _ := controllers.GetRandom(meta.Collection, maxCountOfCarousel, "")
 		template := getCarouseTemplate(event.Source.UserID, records)
-		sendCarouselMessage(event, template)
+		sendCarouselMessage(event, template, "隨機表特已送到囉")
 	default:
 		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == "" {
 			records, _ := controllers.GetRandom(meta.Collection, maxCountOfCarousel, message)
 			if records != nil && len(records) > 0 {
 				template := getCarouseTemplate(event.Source.UserID, records)
-				sendCarouselMessage(event, template)
+				sendCarouselMessage(event, template, "隨機表特已送到囉")
 			} else {
 				template := getMenuButtonTemplateV2(event, DefaultTitle)
-				sendCarouselMessage(event, template)
+				sendCarouselMessage(event, template, "我能為您做什麼？")
 			}
 		}
 	}
@@ -423,20 +426,20 @@ func getImgCarousTemplate(record *models.ArticleDocument) (template *linebot.Ima
 	return template
 }
 
-func sendCarouselMessage(event *linebot.Event, template *linebot.CarouselTemplate) {
-	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("圖片已送達", template)).Do(); err != nil {
+func sendCarouselMessage(event *linebot.Event, template *linebot.CarouselTemplate, altText string) {
+	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(altText, template)).Do(); err != nil {
 		meta.Log.Println(err)
 	}
 }
 
-func sendButtonMessage(event *linebot.Event, template *linebot.ButtonsTemplate) {
-	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(AltText, template)).Do(); err != nil {
-		meta.Log.Println(err)
-	}
-}
+//func sendButtonMessage(event *linebot.Event, template *linebot.ButtonsTemplate) {
+//	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(AltText, template)).Do(); err != nil {
+//		meta.Log.Println(err)
+//	}
+//}
 
 func sendImgCarouseMessage(event *linebot.Event, template *linebot.ImageCarouselTemplate) {
-	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("圖片已送達", template)).Do(); err != nil {
+	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("預覽圖片已送達", template)).Do(); err != nil {
 		meta.Log.Println(err)
 	}
 }
