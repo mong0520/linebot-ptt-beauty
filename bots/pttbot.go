@@ -40,8 +40,8 @@ const (
 	ActionAddFavorite string = "加入最愛"
 	ActionClick       string = "👉 點我打開"
 	ActionHelp        string = "表特選單"
-	ActionAllImage    string = "預覽圖片"
-	ActonShowFav      string = "顯示最愛"
+	ActionAllImage    string = "👁️ 預覽圖片"
+	ActonShowFav      string = "❤️ 顯示最愛"
 
 	ModeHttp  string = "http"
 	ModeHttps string = "https"
@@ -144,7 +144,7 @@ func actinoAddFavorite(event *linebot.Event, action string, values url.Values) {
 		meta.Log.Println("Record found, update it", record)
 		oldRecords := record.Favorites
 		if exist, idx := utils.InArray(newFavoriteArticle, oldRecords); exist == true {
-			meta.Log.Println("已存在，移除")
+			meta.Log.Println(newFavoriteArticle, "已存在，移除")
 			oldRecords = utils.RemoveStringItem(oldRecords, idx)
 			toggleMessage = "已從最愛中移除"
 		} else {
