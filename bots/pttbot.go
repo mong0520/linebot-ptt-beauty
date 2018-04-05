@@ -41,7 +41,7 @@ const (
 	ActionClick       string = "👉 點我打開"
 	ActionHelp        string = "表特選單"
 	ActionAllImage    string = "👁️ 預覽圖片"
-	ActonShowFav      string = "❤️ 顯示最愛"
+	ActonShowFav      string = "❤️ 我的最愛"
 
 	ModeHttp  string = "http"
 	ModeHttps string = "https"
@@ -344,6 +344,15 @@ func textHander(event *linebot.Event, message string) {
 		records, _ := controllers.GetRandom(meta.Collection, maxCountOfCarousel, "")
 		template := getCarouseTemplate(event.Source.UserID, records)
 		sendCarouselMessage(event, template, "隨機表特已送到囉")
+	case ActionNewest:
+		values := url.Values{}
+		values.Set("period", fmt.Sprintf("%d", oneDayInSec))
+		values.Set("page", "0")
+		actionNewest(event, values)
+    case ActonShowFav:
+        values := url.Values{}
+        values.Set("user_id", event.Source.UserID)
+        actionShowFavorite(event, "", values)
 	default:
 		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == "" {
 			records, _ := controllers.GetRandom(meta.Collection, maxCountOfCarousel, message)
@@ -417,7 +426,6 @@ func getImgCarousTemplate(record *models.ArticleDocument) (template *linebot.Ima
 	for _, url := range urls {
 		tmpColumn := linebot.NewImageCarouselColumn(
 			url,
-			//linebot.NewURITemplateAction(ActionClick, url),
 			linebot.NewURITemplateAction(ActionClick, record.URL),
 		)
 		columnList = append(columnList, tmpColumn)
