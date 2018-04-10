@@ -180,7 +180,7 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 		startIdx := currentPage * columnCount
 		endIdx := startIdx + columnCount
 		lastPage := false
-		if endIdx >= len(userData.Favorites)-1 || startIdx >= endIdx{
+		if endIdx > len(userData.Favorites)-1 || startIdx > endIdx{
 			endIdx = len(userData.Favorites)
 			lastPage = true
 		}
