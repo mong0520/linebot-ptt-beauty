@@ -23,8 +23,8 @@ var defaultThumbnail = "https://i.imgur.com/StcRAPB.png"
 var oneDayInSec = 60 * 60 * 24
 var oneMonthInSec = oneDayInSec * 30
 var oneYearInSec = oneMonthInSec * 365
-var SSLCertPath = "/etc/dehydrated/certs/nt1.me/fullchain.pem"
-var SSLPrivateKeyPath = "/etc/dehydrated/certs/nt1.me/privkey.pem"
+var SSLCertPath = "/etc/letsencrypt/live/nt1.me/fullchain.pem"
+var SSLPrivateKeyPath = "/etc/letsencrypt/live/nt1.me/privkey.pem"
 
 // EventType constants
 const (
@@ -159,22 +159,73 @@ func actinoAddFavorite(event *linebot.Event, action string, values url.Values) {
 }
 
 func actionShowFavorite(event *linebot.Event, action string, values url.Values) {
+	columnCount := 9
+	userId := values.Get("user_id")
 	userFavorite := &controllers.UserFavorite{
-		UserId:    values.Get("user_id"),
+		UserId:    userId,
 		Favorites: []string{},
 	}
-	userData, _ := userFavorite.Get(meta)
-	favDocuments := []models.ArticleDocument{}
-	for idx := len(userData.Favorites)-1; idx >= 0; idx-- {
-		favArticleId := userData.Favorites[idx]
-		query := bson.M{"article_id": favArticleId}
-		tmpRecord, _ := controllers.GetOne(meta.Collection, query)
-		favDocuments = append(favDocuments, *tmpRecord)
-	}
-	if len(favDocuments) == 0 {
-		sendTextMessage(event, "尚無最愛")
+
+	if currentPage, err := strconv.Atoi(values.Get("page")); err != nil {
+		meta.Log.Println("Unable to parse parameters", values)
 	} else {
+		userData, _ := userFavorite.Get(meta)
+
+		// reverse slice
+		for i := len(userData.Favorites)/2-1; i >= 0; i-- {
+			opp := len(userData.Favorites)-1-i
+			userData.Favorites[i], userData.Favorites[opp] = userData.Favorites[opp], userData.Favorites[i]
+		}
+
+		startIdx := currentPage * columnCount
+		endIdx := startIdx + columnCount
+		lastPage := false
+		if endIdx >= len(userData.Favorites)-1 || startIdx >= endIdx{
+			endIdx = len(userData.Favorites)
+			lastPage = true
+		}
+
+		fmt.Println("Start Index", startIdx)
+		fmt.Println("End Index", endIdx)
+		fmt.Println("Total Length", len(userData.Favorites))
+
+		favDocuments := []models.ArticleDocument{}
+		favs := userData.Favorites[startIdx:endIdx]
+		fmt.Println(favs)
+
+		for i := startIdx ; i <  endIdx ; i++{
+			favArticleId := userData.Favorites[i]
+			query := bson.M{"article_id": favArticleId}
+			tmpRecord, _ := controllers.GetOne(meta.Collection, query)
+			favDocuments = append(favDocuments, *tmpRecord)
+		}
+
+		// append next page column
+		previousPage := currentPage - 1
+		if previousPage < 0 {
+			previousPage = 0
+		}
+		nextPage := currentPage + 1
+		previousData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, previousPage, userId)
+		nextData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, nextPage, userId)
+		previousText := fmt.Sprintf("上一頁 %d", previousPage)
+		nextText := fmt.Sprintf("下一頁 %d", nextPage)
+		if lastPage == true{
+			nextData = "--"
+			nextText = "--"
+		}
+
+		tmpColumn := linebot.NewCarouselColumn(
+			defaultThumbnail,
+			DefaultTitle,
+			"繼續看？",
+			linebot.NewMessageTemplateAction(ActionHelp, ActionHelp),
+			linebot.NewPostbackTemplateAction(previousText, previousData, "", ""),
+			linebot.NewPostbackTemplateAction(nextText, nextData, "", ""),
+		)
+
 		template := getCarouseTemplate(event.Source.UserID, favDocuments)
+		template.Columns = append(template.Columns, tmpColumn)
 		sendCarouselMessage(event, template, "最愛照片已送達")
 	}
 }
@@ -208,7 +259,7 @@ func actionAllImage(event *linebot.Event, values url.Values) {
 	if articleId := values.Get("article_id"); articleId != "" {
 		query := bson.M{"article_id": articleId}
 		result, _ := controllers.GetOne(meta.Collection, query)
-		template := getImgCarousTemplate(result)
+		template := getImgCarousTemplate(result, values)
 		sendImgCarouseMessage(event, template)
 	} else {
 		meta.Log.Println("Unable to get article id", values)
@@ -352,6 +403,7 @@ func textHander(event *linebot.Event, message string) {
     case ActonShowFav:
         values := url.Values{}
         values.Set("user_id", event.Source.UserID)
+        values.Set("page", "0")
         actionShowFavorite(event, "", values)
 	default:
 		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == "" {
@@ -372,7 +424,7 @@ func getMenuButtonTemplateV2(event *linebot.Event, title string) (template *line
 	dataNewlest := fmt.Sprintf("action=%s&page=0", ActionNewest)
 	dataRandom := fmt.Sprintf("action=%s", ActionRandom)
 	dataQuery := fmt.Sprintf("action=%s", ActionQuery)
-	dataShowFav := fmt.Sprintf("action=%s&user_id=%s", ActonShowFav, event.Source.UserID)
+	dataShowFav := fmt.Sprintf("action=%s&user_id=%s&page=0", ActonShowFav, event.Source.UserID)
 
 	menu1 := linebot.NewCarouselColumn(
 		defaultThumbnail,
@@ -417,12 +469,22 @@ func sendTextMessage(event *linebot.Event, text string) {
 	}
 }
 
-func getImgCarousTemplate(record *models.ArticleDocument) (template *linebot.ImageCarouselTemplate) {
+func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (template *linebot.ImageCarouselTemplate) {
 	urls := record.ImageLinks
 	columnList := []*linebot.ImageCarouselColumn{}
-	if len(urls) > 10 {
-		urls = urls[0:10]
+	articleID := values.Get("article_id")
+	page, _ := strconv.Atoi(values.Get("page"))
+	startIdx := page * 9
+	endIdx := startIdx + 9
+	lastPage := false
+	if endIdx >= len(urls)-1{
+		endIdx = len(urls)
+		lastPage = true
 	}
+	urls = urls[startIdx:endIdx]
+	//if len(urls) > 9 {
+	//	urls = urls[0:9]
+	//}
 	for _, url := range urls {
 		tmpColumn := linebot.NewImageCarouselColumn(
 			url,
@@ -430,6 +492,15 @@ func getImgCarousTemplate(record *models.ArticleDocument) (template *linebot.Ima
 		)
 		columnList = append(columnList, tmpColumn)
 	}
+	if lastPage == false{
+		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=%d", ActionAllImage, articleID, page+1)
+		tmpColumn := linebot.NewImageCarouselColumn(
+			defaultImage,
+			linebot.NewPostbackTemplateAction("下一頁", postBackData, "", ""),
+		)
+		columnList = append(columnList, tmpColumn)
+	}
+
 	template = linebot.NewImageCarouselTemplate(columnList...)
 	return template
 }
