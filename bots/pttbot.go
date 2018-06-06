@@ -2,17 +2,20 @@ package bots
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"os/exec"
+	"strconv"
+	"strings"
+
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/mong0520/linebot-ptt-beauty/controllers"
 	"github.com/mong0520/linebot-ptt-beauty/models"
 	"github.com/mong0520/linebot-ptt-beauty/utils"
 	"gopkg.in/mgo.v2/bson"
-	"log"
-	"net/http"
-	"net/url"
-	"os"
-	"strconv"
-	"strings"
 )
 
 var bot *linebot.Client
@@ -42,6 +45,7 @@ const (
 	ActionHelp        string = "表特選單"
 	ActionAllImage    string = "👁️ 預覽圖片"
 	ActonShowFav      string = "❤️ 我的最愛"
+	ActonRunCC        string = "/cc"
 
 	ModeHttp  string = "http"
 	ModeHttps string = "https"
@@ -172,15 +176,15 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 		userData, _ := userFavorite.Get(meta)
 
 		// reverse slice
-		for i := len(userData.Favorites)/2-1; i >= 0; i-- {
-			opp := len(userData.Favorites)-1-i
+		for i := len(userData.Favorites)/2 - 1; i >= 0; i-- {
+			opp := len(userData.Favorites) - 1 - i
 			userData.Favorites[i], userData.Favorites[opp] = userData.Favorites[opp], userData.Favorites[i]
 		}
 
 		startIdx := currentPage * columnCount
 		endIdx := startIdx + columnCount
 		lastPage := false
-		if endIdx > len(userData.Favorites)-1 || startIdx > endIdx{
+		if endIdx > len(userData.Favorites)-1 || startIdx > endIdx {
 			endIdx = len(userData.Favorites)
 			lastPage = true
 		}
@@ -193,7 +197,7 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 		favs := userData.Favorites[startIdx:endIdx]
 		fmt.Println(favs)
 
-		for i := startIdx ; i <  endIdx ; i++{
+		for i := startIdx; i < endIdx; i++ {
 			favArticleId := userData.Favorites[i]
 			query := bson.M{"article_id": favArticleId}
 			tmpRecord, _ := controllers.GetOne(meta.Collection, query)
@@ -210,7 +214,7 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 		nextData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, nextPage, userId)
 		previousText := fmt.Sprintf("上一頁 %d", previousPage)
 		nextText := fmt.Sprintf("下一頁 %d", nextPage)
-		if lastPage == true{
+		if lastPage == true {
 			nextData = "--"
 			nextText = "--"
 		}
@@ -400,12 +404,34 @@ func textHander(event *linebot.Event, message string) {
 		values.Set("period", fmt.Sprintf("%d", oneDayInSec))
 		values.Set("page", "0")
 		actionNewest(event, values)
-    case ActonShowFav:
-        values := url.Values{}
-        values.Set("user_id", event.Source.UserID)
-        values.Set("page", "0")
-        actionShowFavorite(event, "", values)
+	case ActonShowFav:
+		values := url.Values{}
+		values.Set("user_id", event.Source.UserID)
+		values.Set("page", "0")
+		actionShowFavorite(event, "", values)
 	default:
+		if strings.HasPrefix(message, ActonRunCC) {
+			commands := strings.Split(message, " ")
+			action := commands[1]
+			cmd := exec.Command("./run_cc.sh", action)
+			stdout, err := cmd.StdoutPipe()
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer stdout.Close()
+			if err := cmd.Start(); err != nil {
+				log.Fatal(err)
+			}
+			// 读取输出结果
+			opBytes, err := ioutil.ReadAll(stdout)
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Println(string(opBytes))
+			sendTextMessage(event, string(opBytes))
+			return
+		}
+
 		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == "" {
 			records, _ := controllers.GetRandom(meta.Collection, maxCountOfCarousel, message)
 			if records != nil && len(records) > 0 {
@@ -477,7 +503,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 	startIdx := page * 9
 	endIdx := startIdx + 9
 	lastPage := false
-	if endIdx >= len(urls)-1{
+	if endIdx >= len(urls)-1 {
 		endIdx = len(urls)
 		lastPage = true
 	}
@@ -488,11 +514,11 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 	for _, url := range urls {
 		tmpColumn := linebot.NewImageCarouselColumn(
 			url,
-			linebot.NewURITemplateAction(ActionClick, record.URL),
+			linebot.NewURITemplateAction(ActionClick, url),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
-	if lastPage == false{
+	if lastPage == false {
 		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=%d", ActionAllImage, articleID, page+1)
 		tmpColumn := linebot.NewImageCarouselColumn(
 			defaultImage,
