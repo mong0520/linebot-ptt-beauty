@@ -24,6 +24,7 @@ var maxCountOfCarousel = 10
 var defaultImage = "https://i.imgur.com/WAnWk7K.png"
 var defaultThumbnail = "https://i.imgur.com/StcRAPB.png"
 var oneDayInSec = 60 * 60 * 24
+var oneWeekInSec = oneDayInSec * 7
 var oneMonthInSec = oneDayInSec * 30
 var oneYearInSec = oneMonthInSec * 365
 var SSLCertPath = "/etc/letsencrypt/live/nt1.me/fullchain.pem"
@@ -465,7 +466,7 @@ func getMenuButtonTemplateV2(event *linebot.Event, title string) (template *line
 		title,
 		"你可以試試看以下選項，或直接輸入關鍵字查詢",
 		linebot.NewPostbackTemplateAction(ActionDailyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneDayInSec), "", ""),
-		linebot.NewPostbackTemplateAction(ActionMonthlyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneMonthInSec), "", ""),
+		linebot.NewPostbackTemplateAction(ActionMonthlyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneWeekInSec), "", ""),
 		linebot.NewPostbackTemplateAction(ActionYearHot, dataQuery+"&period="+fmt.Sprintf("%d", oneYearInSec), "", ""),
 	)
 	columnList = append(columnList, menu1, menu2)
