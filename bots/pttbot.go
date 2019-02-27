@@ -27,8 +27,8 @@ var oneDayInSec = 60 * 60 * 24
 var oneWeekInSec = oneDayInSec * 7
 var oneMonthInSec = oneDayInSec * 30
 var oneYearInSec = oneMonthInSec * 365
-var SSLCertPath = "/etc/letsencrypt/live/nt1.me/fullchain.pem"
-var SSLPrivateKeyPath = "/etc/letsencrypt/live/nt1.me/privkey.pem"
+var SSLCertPath = "/etc/nginx/ssl/fullchain.cer"
+var SSLPrivateKeyPath = "/etc/nginx/ssl/api.nt1.me.key"
 
 // EventType constants
 const (
@@ -72,10 +72,16 @@ func InitLineBot(m *models.Model) {
 	m.Log.Printf("Run Mode = %s\n", runMode)
 	if strings.ToLower(runMode) == ModeHttps {
 		m.Log.Printf("Secure listen on %s with \n", addr)
-		http.ListenAndServeTLS(addr, SSLCertPath, SSLPrivateKeyPath, nil)
+		err := http.ListenAndServeTLS(addr, SSLCertPath, SSLPrivateKeyPath, nil)
+		if err != nil {
+			m.Log.Panic(err)
+		}
 	} else {
 		m.Log.Printf("Listen on %s\n", addr)
-		http.ListenAndServe(addr, nil)
+		err := http.ListenAndServe(addr, nil)
+		if err != nil {
+			m.Log.Panic(err)
+		}
 	}
 }
 
