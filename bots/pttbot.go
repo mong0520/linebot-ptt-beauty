@@ -283,8 +283,8 @@ func actionNewest(event *linebot.Event, values url.Values) {
 		meta.Log.Println("Unable to parse parameters", values)
 	} else {
 		records, _ := controllers.Get(meta.Collection, currentPage, columnCount)
-		for _, record := range records {
-			meta.Log.Println(record)
+		for idx, record := range records {
+			meta.Log.Printf("ID: %d, Date: %s, Title: %s", idx, record.Date, record.ArticleTitle)
 		}
 		template := getCarouseTemplate(event.Source.UserID, records)
 
