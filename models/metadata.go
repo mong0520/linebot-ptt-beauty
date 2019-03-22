@@ -2,12 +2,12 @@ package models
 
 import (
 	"encoding/json"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"log"
+
+	"gopkg.in/mgo.v2"
+
+	"gopkg.in/mgo.v2/bson"
 )
-
-
 
 type Model struct {
 	Session                *mgo.Session

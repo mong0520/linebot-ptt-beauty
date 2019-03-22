@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/mong0520/linebot-ptt-beauty/models"
 	"gopkg.in/mgo.v2"
 	"log"
-	"github.com/mong0520/linebot-ptt-beauty/bots"
-	"github.com/mong0520/linebot-ptt-beauty/utils"
 	"os"
 	"path"
+
+	"github.com/mong0520/linebot-ptt-beauty/bots"
+	"github.com/mong0520/linebot-ptt-beauty/models"
+	"github.com/mong0520/linebot-ptt-beauty/utils"
 )
 
 var logger *log.Logger

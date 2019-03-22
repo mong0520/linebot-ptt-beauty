@@ -33,7 +33,6 @@ var SSLPrivateKeyPath = "/etc/nginx/ssl/api.nt1.me.key"
 // EventType constants
 const (
 	DefaultTitle string = "💋表特看看"
-
 	// 應該把 action 和 lable 分開
 	ActionQuery       string = "一般查詢"
 	ActionNewest      string = "🎊 最新表特"
@@ -230,9 +229,9 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			defaultThumbnail,
 			DefaultTitle,
 			"繼續看？",
-			linebot.NewMessageTemplateAction(ActionHelp, ActionHelp),
-			linebot.NewPostbackTemplateAction(previousText, previousData, "", ""),
-			linebot.NewPostbackTemplateAction(nextText, nextData, "", ""),
+			linebot.NewMessageAction(ActionHelp, ActionHelp),
+			linebot.NewPostbackAction(previousText, previousData, "", ""),
+			linebot.NewPostbackAction(nextText, nextData, "", ""),
 		)
 
 		template := getCarouseTemplate(event.Source.UserID, favDocuments)
@@ -307,9 +306,9 @@ func actionNewest(event *linebot.Event, values url.Values) {
 			defaultThumbnail,
 			DefaultTitle,
 			"繼續看？",
-			linebot.NewMessageTemplateAction(ActionHelp, ActionHelp),
-			linebot.NewPostbackTemplateAction(previousText, previousData, "", ""),
-			linebot.NewPostbackTemplateAction(nextText, nextData, "", ""),
+			linebot.NewMessageAction(ActionHelp, ActionHelp),
+			linebot.NewPostbackAction(previousText, previousData, "", ""),
+			linebot.NewPostbackAction(nextText, nextData, "", ""),
 		)
 		template.Columns = append(template.Columns, tmpColumn)
 
@@ -364,10 +363,10 @@ func getCarouseTemplate(userId string, records []models.ArticleDocument) (templa
 			thumnailUrl,
 			title,
 			text,
-			linebot.NewURITemplateAction(ActionClick, result.URL),
-			linebot.NewPostbackTemplateAction(lable, postBackData, "", ""),
+			linebot.NewURIAction(ActionClick, result.URL),
+			linebot.NewPostbackAction(lable, postBackData, "", ""),
 			//linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
-			linebot.NewPostbackTemplateAction(favLabel, dataAddFavorite, "", ""),
+			linebot.NewPostbackAction(favLabel, dataAddFavorite, "", ""),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
@@ -466,17 +465,17 @@ func getMenuButtonTemplateV2(event *linebot.Event, title string) (template *line
 		defaultThumbnail,
 		title,
 		"你可以試試看以下選項，或直接輸入關鍵字查詢",
-		linebot.NewPostbackTemplateAction(ActionNewest, dataNewlest, "", ""),
-		linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
-		linebot.NewPostbackTemplateAction(ActonShowFav, dataShowFav, "", ""),
+		linebot.NewPostbackAction(ActionNewest, dataNewlest, "", ""),
+		linebot.NewPostbackAction(ActionRandom, dataRandom, "", ""),
+		linebot.NewPostbackAction(ActonShowFav, dataShowFav, "", ""),
 	)
 	menu2 := linebot.NewCarouselColumn(
 		defaultThumbnail,
 		title,
 		"你可以試試看以下選項，或直接輸入關鍵字查詢",
-		linebot.NewPostbackTemplateAction(ActionDailyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneDayInSec), "", ""),
-		linebot.NewPostbackTemplateAction(ActionMonthlyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneWeekInSec), "", ""),
-		linebot.NewPostbackTemplateAction(ActionYearHot, dataQuery+"&period="+fmt.Sprintf("%d", oneYearInSec), "", ""),
+		linebot.NewPostbackAction(ActionDailyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneDayInSec), "", ""),
+		linebot.NewPostbackAction(ActionMonthlyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneWeekInSec), "", ""),
+		linebot.NewPostbackAction(ActionYearHot, dataQuery+"&period="+fmt.Sprintf("%d", oneYearInSec), "", ""),
 	)
 	columnList = append(columnList, menu1, menu2)
 	template = linebot.NewCarouselTemplate(columnList...)
@@ -524,7 +523,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 	for _, url := range urls {
 		tmpColumn := linebot.NewImageCarouselColumn(
 			url,
-			linebot.NewURITemplateAction(ActionClick, url),
+			linebot.NewURIAction(ActionClick, url),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
@@ -532,7 +531,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=%d", ActionAllImage, articleID, page+1)
 		tmpColumn := linebot.NewImageCarouselColumn(
 			defaultImage,
-			linebot.NewPostbackTemplateAction("下一頁", postBackData, "", ""),
+			linebot.NewPostbackAction("下一頁", postBackData, "", ""),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
