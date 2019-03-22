@@ -8,7 +8,7 @@ BINARY_NAME=mybinary
 BINARY_UNIX=$(BINARY_NAME)_unix
 
 build:
-	docker run --rm -v $(GOPATH):/go -w /go/src/gitlab.kkinternal.com/neilwei/project-lambda-template golang:1.10 go build
+	docker build -t mong0520/linebot-ptt-beauty .
 
 debug:
-	docker run -it --rm -v $(GOPATH):/go -w /go/src/github.com/mong0520/linebot-ptt-beauty golang:1.10 /bin/bash
+	docker run -it --rm -v $(PWD)/ssl:/ssl mong0520/linebot-ptt-beauty /bin/bash

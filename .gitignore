@@ -18,3 +18,5 @@ local_run.sh
 
 vendor/*/
 build.sh
+vendor/
+ssl/

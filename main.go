@@ -1,10 +1,11 @@
 package main
 
 import (
-	"gopkg.in/mgo.v2"
 	"log"
 	"os"
 	"path"
+
+	"gopkg.in/mgo.v2"
 
 	"github.com/mong0520/linebot-ptt-beauty/bots"
 	"github.com/mong0520/linebot-ptt-beauty/models"
@@ -20,12 +21,16 @@ func initLineBot() {
 }
 
 func initDB() {
-	if session, err := mgo.Dial("localhost:27017"); err != nil {
+	mongoHost := os.Getenv("MONGO_HOST_PORT")
+	meta.Log.Println("Start to init DB...", mongoHost)
+	// if session, err := mgo.Dial("localhost:27017"); err != nil {
+	if session, err := mgo.Dial(mongoHost); err != nil {
 		logger.Fatalln("Unable to connect DB", err)
 	} else {
 		meta.Session = session
 		meta.Collection = session.DB("ptt").C("beauty")
 		meta.CollectionUserFavorite = session.DB("ptt").C("users")
+		meta.Log.Println("DB is inited")
 	}
 }
 
@@ -38,9 +43,7 @@ func main() {
 	}
 	logger = utils.GetLogger(logFile)
 	meta.Log = logger
-	meta.Log.Println("Start to init DB...")
 	initDB()
-	meta.Log.Println("...Done")
 	//results, _ := controllers.GetMostLike(meta.Collection, 5, 0)
 	//for _, r := range results {
 	//	fmt.Println(r.MessageCount.All, r.MessageCount.Boo, r.Date, r.URL, r.ArticleTitle)
