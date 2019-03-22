@@ -4,16 +4,11 @@ services:
   app:
     build: .
     image: mong0520/linebot-ptt-beauty:latest
-    environment:
-      - MONGO_HOST_PORT=db:27017
-      - ChannelSecret=650a083ac92657861578c517f782ed91
-      - ChannelAccessToken=ldEQze10CsokawsqZC2BQewZiB6zwBcNjkqIpqI6hKe8dOPMa+ioC3SsxhPFTFX3LiJi+aZnQuxa7swRc/5SMfiB1+hiWtwHtRtMYTsISrFzNpnqitUaQd20yXlmwjLwKlNY8r60SMOUMsBzDaCZpgdB04t89/1O/w1cDnyilFU=
-      - PORT=443
-      - RUNMODE=https
+    env_file: .env
     volumes:
       - ./ssl:/ssl
     ports:
-      - 3000:443
+      - 443:443
     depends_on:
       - db
 

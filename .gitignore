@@ -20,3 +20,4 @@ vendor/*/
 build.sh
 vendor/
 ssl/
+.env

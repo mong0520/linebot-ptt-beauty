@@ -70,7 +70,7 @@ func InitLineBot(m *models.Model) {
 	runMode := os.Getenv("RUNMODE")
 	m.Log.Printf("Run Mode = %s\n", runMode)
 	if strings.ToLower(runMode) == ModeHttps {
-		m.Log.Printf("Secure listen on %s with \n", addr)
+		m.Log.Printf("Secure listen on %s \n", addr)
 		err := http.ListenAndServeTLS(addr, sslCertPath, sslPrivateKeyPath, nil)
 		if err != nil {
 			m.Log.Panic(err)
