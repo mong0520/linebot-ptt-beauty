@@ -13,5 +13,11 @@ build:
 release:
 	docker push mong0520/linebot-ptt-beauty
 
+start:
+	sudo docker-compose up -d app
+
+stop:
+	sudo docker-compose down
+
 debug:
 	docker run -it --rm -v $(PWD)/ssl:/ssl mong0520/linebot-ptt-beauty /bin/bash
