@@ -56,3 +56,6 @@ ngrok http 8080
 <img src="resource/screen3.jpg" height="480">
 
 ### 待辨清單:
+
+SSL 
+https://magiclen.org/simple-ssl-acme-cloudflare/
