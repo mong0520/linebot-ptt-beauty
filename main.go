@@ -27,6 +27,7 @@ func initDB() {
 	if session, err := mgo.Dial(mongoHost); err != nil {
 		logger.Fatalln("Unable to connect DB", err)
 	} else {
+		session.SetMode(mgo.Eventual, true)
 		meta.Session = session
 		meta.Collection = session.DB("ptt").C("beauty")
 		meta.CollectionUserFavorite = session.DB("ptt").C("users")
