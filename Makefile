@@ -10,6 +10,9 @@ BINARY_UNIX=$(BINARY_NAME)_unix
 build:
 	docker build -t mong0520/linebot-ptt-beauty .
 
+update:
+	docker pull mong0520/linebot-ptt-beauty
+
 release:
 	docker push mong0520/linebot-ptt-beauty
 
