@@ -59,3 +59,7 @@ ngrok http 8080
 
 SSL 
 https://magiclen.org/simple-ssl-acme-cloudflare/
+
+```
+acme.sh --issue -d api.nt1.me -w /var/www/api.nt1.me --force --log
+```
