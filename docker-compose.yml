@@ -9,8 +9,8 @@ services:
       - ./ssl:/ssl
     ports:
       - 443:443
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
 
   db:
     image: mongo
