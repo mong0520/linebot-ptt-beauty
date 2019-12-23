@@ -32,7 +32,7 @@ make dev
 
 
 ### 佈署
-可以佈署至 Heroku 測試使用，需要在 heroku dashboard 中設定 `ChannelAccessToken`, `ChannelSecret`, `MongoDBHostPort`, 與 `PORT` 參數
+可以佈署至 Heroku 測試使用，需要在 heroku dashboard 中設定 `ChannelAccessToken`, `ChannelSecret`, `MongoDBHostPort`, 與 `PORT` 參數，同 `.env.tempalte` 中之設定
 ```
 heroku login
 make push
