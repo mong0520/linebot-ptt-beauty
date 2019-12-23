@@ -37,7 +37,12 @@ ngrok http 5000
 > Heroku 佈署 docker 方式請參考 https://devcenter.heroku.com/categories/deploying-with-docker
 
 ```
+# [heroku]
 heroku login
+heroku apps:create APP_NAME
+
+# [deploy]
+make build
 make push
 make release
 ```
