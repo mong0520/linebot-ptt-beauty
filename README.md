@@ -12,10 +12,9 @@
 
 ### 本機測試
 
+請先前往 [Line Message API](https://developers.line.biz/en/services/messaging-api/) 申請 AccessKey & Secret Key 以及相關設定，在此不贅述
 ```
-# 1) 請先前往 [Line Message API](https://developers.line.biz/en/services/messaging-api/) 申請 AccessKey & Secret Key 以及相關設定，在此不贅述
-
-# 2) 設定環境變數
+# 1) 設定環境變數
 copy .env.template .env
 vim .env
 
