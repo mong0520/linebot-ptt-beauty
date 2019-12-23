@@ -34,6 +34,8 @@ ngrok http 5000
 
 ### 佈署
 可以佈署至 Heroku 測試使用，需要在 heroku dashboard 中設定 `ChannelAccessToken`, `ChannelSecret`, `MongoDBHostPort`, 與 `PORT` 參數，同 `.env.tempalte` 中之設定
+> Heroku 佈署 docker 方式請參考 https://devcenter.heroku.com/categories/deploying-with-docker
+
 ```
 heroku login
 make push
@@ -55,5 +57,3 @@ make release
 * 對話直接搜尋
 
 <img src="resource/screen3.jpg" height="480">
-
-### 待辨清單:
