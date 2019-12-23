@@ -1,3 +1,0 @@
-[submodule "scripts/ptt-web-crawler"]
-	path = scripts/ptt-web-crawler
-	url = git@github.com:mong0520/ptt-web-crawler.git
