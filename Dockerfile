@@ -6,3 +6,4 @@ RUN GO111MODULE=on go build
 
 EXPOSE 5000
 ENTRYPOINT ["./linebot-ptt-beauty"]
+CMD ["./linebot-ptt-beauty"]
