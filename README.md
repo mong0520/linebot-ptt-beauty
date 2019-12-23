@@ -10,33 +10,17 @@
 
 ## For Developer
 
-### 開發環境
-
-```
-go get github.com/mong0520/linebot-ptt
-govendor sync
-```
-
-
 ### 本機測試
 
 ```
-# 1) 啟動 MongDB
-Follow the instruction in db/
+# 1) 請先前往 [Line Message API](https://developers.line.biz/en/services/messaging-api/) 申請 AccessKey & Secret Key 以及相關設定，在此不贅述
 
-# 2) 啟動 Linebot
-export PORT=${PORT}
-export ChannelSecret=${ChannelSecret}
-export ChannelAccessToken=${ChannelAccessToken}
-
-go run main.go
-
-# 3) 設定 Https 轉發
-ngrok http 8080
-
-# 4) 設定 Linebot webhook
-
+# 2) 啟動 Linebot + MongDB
+make dev
 ```
+
+### 資料注入
+使用 https://github.com/mong0520/ptt-web-crawler/blob/master/run.sh，將資料注入 mongoDB 即可
 
 
 ### 截圖
