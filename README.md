@@ -15,6 +15,10 @@
 ```
 # 1) 請先前往 [Line Message API](https://developers.line.biz/en/services/messaging-api/) 申請 AccessKey & Secret Key 以及相關設定，在此不贅述
 
+# 2) 設定環境變數
+copy .env.template .env
+vim .env
+
 # 2) 啟動 Linebot + MongDB
 make dev
 ```
@@ -22,6 +26,14 @@ make dev
 ### 資料注入
 使用 https://github.com/mong0520/ptt-web-crawler/blob/master/run.sh，將資料注入 mongoDB 即可
 
+
+### 佈署
+可以佈署至 Heroku 測試使用，需要在 heroku dashboard 中設定 `ChannelAccessToken`, `ChannelSecret`, `MongoDBHostPort`, 與 `PORT` 參數
+```
+heroku login
+make push
+make release
+```
 
 ### 截圖
 
