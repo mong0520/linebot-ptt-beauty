@@ -5,7 +5,10 @@ build:
 	docker build -t ${NAMESPACE}/${APP} .
 
 dev:
-	sudo docker-compose up -d
+	docker-compose up -d
+
+down:
+	docker-compose down
 
 push:
 	@docker tag ${APP} ${NAMESPACE}/${APP}

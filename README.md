@@ -18,8 +18,13 @@
 copy .env.template .env
 vim .env
 
-# 2) 啟動 Linebot + MongDB
+# 2) Compile docker image
+make build NAMESPAMCE=YOUR_DOCKER_NAMESPACE
+
+# 3) 啟動 Linebot + MongDB
 make dev
+
+# 4) 使用 ngork 產生 https endpoint, 並至 Line Message API 後台設定 callback url 為 https://YOUR_NGROK_URL/callback
 ```
 
 ### 資料注入
