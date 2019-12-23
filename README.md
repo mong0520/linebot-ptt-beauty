@@ -1,4 +1,4 @@
-# Line 聊天機器人 for PTT Beauty 版
+# 表特看看 - Line 聊天機器人 for PTT Beauty
 
 ## For User
 
@@ -10,7 +10,7 @@
 
 ## For Developer
 
-### 安裝
+### 開發環境
 
 ```
 go get github.com/mong0520/linebot-ptt
