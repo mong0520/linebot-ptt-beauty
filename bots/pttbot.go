@@ -27,18 +27,14 @@ var oneDayInSec = 60 * 60 * 24
 var oneWeekInSec = oneDayInSec * 7
 var oneMonthInSec = oneDayInSec * 30
 var oneYearInSec = oneMonthInSec * 365
-var SSLCertPath = "/etc/nginx/ssl/fullchain.cer"
-var SSLPrivateKeyPath = "/etc/nginx/ssl/api.nt1.me.key"
 
-// EventType constants
 const (
 	DefaultTitle string = "💋表特看看"
 
-	// 應該把 action 和 lable 分開
 	ActionQuery       string = "一般查詢"
 	ActionNewest      string = "🎊 最新表特"
 	ActionDailyHot    string = "📈 本日熱門"
-	ActionMonthlyHot  string = "🔥 近期熱門" //改成近期隨機, 先選出100個，然後隨機吐10筆
+	ActionMonthlyHot  string = "🔥 近期熱門"
 	ActionYearHot     string = "🏆 年度熱門"
 	ActionRandom      string = "👩 隨機十連抽"
 	ActionAddFavorite string = "加入最愛"
@@ -47,13 +43,12 @@ const (
 	ActionAllImage    string = "👁️ 預覽圖片"
 	ActonShowFav      string = "❤️ 我的最愛"
 	ActonRunCC        string = "/cc"
-
-	ModeHttp  string = "http"
-	ModeHttps string = "https"
-	AltText   string = "正妹只在手機上"
+	ModeHTTP          string = "http"
+	ModeHTTPS         string = "https"
+	AltText           string = "正妹只在手機上"
 )
 
-func InitLineBot(m *models.Model) {
+func InitLineBot(m *models.Model, runMode string, sslCertPath string, sslPKeyPath string) {
 
 	var err error
 	meta = m
@@ -68,11 +63,10 @@ func InitLineBot(m *models.Model) {
 	port := os.Getenv("PORT")
 	//port := "8080"
 	addr := fmt.Sprintf(":%s", port)
-	runMode := os.Getenv("RUNMODE")
 	m.Log.Printf("Run Mode = %s\n", runMode)
-	if strings.ToLower(runMode) == ModeHttps {
+	if strings.ToLower(runMode) == ModeHTTPS {
 		m.Log.Printf("Secure listen on %s with \n", addr)
-		err := http.ListenAndServeTLS(addr, SSLCertPath, SSLPrivateKeyPath, nil)
+		err := http.ListenAndServeTLS(addr, sslCertPath, sslPKeyPath, nil)
 		if err != nil {
 			m.Log.Panic(err)
 		}
@@ -86,6 +80,7 @@ func InitLineBot(m *models.Model) {
 }
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
+	meta.Log.Println("enter callback hander")
 	events, err := bot.ParseRequest(r)
 
 	if err != nil {
@@ -230,9 +225,9 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			defaultThumbnail,
 			DefaultTitle,
 			"繼續看？",
-			linebot.NewMessageTemplateAction(ActionHelp, ActionHelp),
-			linebot.NewPostbackTemplateAction(previousText, previousData, "", ""),
-			linebot.NewPostbackTemplateAction(nextText, nextData, "", ""),
+			linebot.NewMessageAction(ActionHelp, ActionHelp),
+			linebot.NewPostbackAction(previousText, previousData, "", ""),
+			linebot.NewPostbackAction(nextText, nextData, "", ""),
 		)
 
 		template := getCarouseTemplate(event.Source.UserID, favDocuments)
@@ -307,9 +302,9 @@ func actionNewest(event *linebot.Event, values url.Values) {
 			defaultThumbnail,
 			DefaultTitle,
 			"繼續看？",
-			linebot.NewMessageTemplateAction(ActionHelp, ActionHelp),
-			linebot.NewPostbackTemplateAction(previousText, previousData, "", ""),
-			linebot.NewPostbackTemplateAction(nextText, nextData, "", ""),
+			linebot.NewMessageAction(ActionHelp, ActionHelp),
+			linebot.NewPostbackAction(previousText, previousData, "", ""),
+			linebot.NewPostbackAction(nextText, nextData, "", ""),
 		)
 		template.Columns = append(template.Columns, tmpColumn)
 
@@ -364,10 +359,10 @@ func getCarouseTemplate(userId string, records []models.ArticleDocument) (templa
 			thumnailUrl,
 			title,
 			text,
-			linebot.NewURITemplateAction(ActionClick, result.URL),
-			linebot.NewPostbackTemplateAction(lable, postBackData, "", ""),
-			//linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
-			linebot.NewPostbackTemplateAction(favLabel, dataAddFavorite, "", ""),
+			linebot.NewURIAction(ActionClick, result.URL),
+			linebot.NewPostbackAction(lable, postBackData, "", ""),
+			//linebot.NewPostbackAction(ActionRandom, dataRandom, "", ""),
+			linebot.NewPostbackAction(favLabel, dataAddFavorite, "", ""),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
@@ -466,38 +461,22 @@ func getMenuButtonTemplateV2(event *linebot.Event, title string) (template *line
 		defaultThumbnail,
 		title,
 		"你可以試試看以下選項，或直接輸入關鍵字查詢",
-		linebot.NewPostbackTemplateAction(ActionNewest, dataNewlest, "", ""),
-		linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
-		linebot.NewPostbackTemplateAction(ActonShowFav, dataShowFav, "", ""),
+		linebot.NewPostbackAction(ActionNewest, dataNewlest, "", ""),
+		linebot.NewPostbackAction(ActionRandom, dataRandom, "", ""),
+		linebot.NewPostbackAction(ActonShowFav, dataShowFav, "", ""),
 	)
 	menu2 := linebot.NewCarouselColumn(
 		defaultThumbnail,
 		title,
 		"你可以試試看以下選項，或直接輸入關鍵字查詢",
-		linebot.NewPostbackTemplateAction(ActionDailyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneDayInSec), "", ""),
-		linebot.NewPostbackTemplateAction(ActionMonthlyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneWeekInSec), "", ""),
-		linebot.NewPostbackTemplateAction(ActionYearHot, dataQuery+"&period="+fmt.Sprintf("%d", oneYearInSec), "", ""),
+		linebot.NewPostbackAction(ActionDailyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneDayInSec), "", ""),
+		linebot.NewPostbackAction(ActionMonthlyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneWeekInSec), "", ""),
+		linebot.NewPostbackAction(ActionYearHot, dataQuery+"&period="+fmt.Sprintf("%d", oneYearInSec), "", ""),
 	)
 	columnList = append(columnList, menu1, menu2)
 	template = linebot.NewCarouselTemplate(columnList...)
 	return template
 }
-
-//func getMenuButtonTemplate(event *linebot.Event, title string) (template *linebot.ButtonsTemplate) {
-//	dataNewlest := fmt.Sprintf("action=%s&page=0", ActionNewest)
-//	dataRandom := fmt.Sprintf("action=%s", ActionRandom)
-//	dataQuery := fmt.Sprintf("action=%s", ActionQuery)
-//	dataShowFav := fmt.Sprintf("action=%s&user_id=%s", ActonShowFav, event.Source.UserID)
-//	template = linebot.NewButtonsTemplate(defaultThumbnail, title, "你可以試試看以下選項，或直接輸入關鍵字查詢",
-//		linebot.NewPostbackTemplateAction(ActionNewest, dataNewlest, "", ""),
-//		linebot.NewPostbackTemplateAction(ActionDailyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneDayInSec), "", ""),
-//		linebot.NewPostbackTemplateAction(ActonShowFav, dataShowFav, "", ""),
-//		//linebot.NewPostbackTemplateAction(ActionMonthlyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneMonthInSec), "", ""),
-//		//linebot.NewPostbackTemplateAction(ActionYearHot, dataQuery + "&period="+fmt.Sprintf("%d", oneYearInSec), "", ""),
-//		linebot.NewPostbackTemplateAction(ActionRandom, dataRandom, "", ""),
-//	)
-//	return template
-//}
 
 func sendTextMessage(event *linebot.Event, text string) {
 	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(text)).Do(); err != nil {
@@ -518,13 +497,11 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 		lastPage = true
 	}
 	urls = urls[startIdx:endIdx]
-	//if len(urls) > 9 {
-	//	urls = urls[0:9]
-	//}
+
 	for _, url := range urls {
 		tmpColumn := linebot.NewImageCarouselColumn(
 			url,
-			linebot.NewURITemplateAction(ActionClick, url),
+			linebot.NewURIAction(ActionClick, url),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
@@ -532,7 +509,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=%d", ActionAllImage, articleID, page+1)
 		tmpColumn := linebot.NewImageCarouselColumn(
 			defaultImage,
-			linebot.NewPostbackTemplateAction("下一頁", postBackData, "", ""),
+			linebot.NewPostbackAction("下一頁", postBackData, "", ""),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
@@ -546,12 +523,6 @@ func sendCarouselMessage(event *linebot.Event, template *linebot.CarouselTemplat
 		meta.Log.Println(err)
 	}
 }
-
-//func sendButtonMessage(event *linebot.Event, template *linebot.ButtonsTemplate) {
-//	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(AltText, template)).Do(); err != nil {
-//		meta.Log.Println(err)
-//	}
-//}
 
 func sendImgCarouseMessage(event *linebot.Event, template *linebot.ImageCarouselTemplate) {
 	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage("預覽圖片已送達", template)).Do(); err != nil {
