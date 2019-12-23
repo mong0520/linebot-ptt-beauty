@@ -1,26 +1,15 @@
-# Go parameters
-GOCMD=go
-GOBUILD=$(GOCMD) build
-GOCLEAN=$(GOCMD) clean
-GOTEST=$(GOCMD) test
-GOGET=$(GOCMD) get
-BINARY_NAME=mybinary
-BINARY_UNIX=$(BINARY_NAME)_unix
+APP=linebot-ptt-beauty
 
 build:
-	docker build -t mong0520/linebot-ptt-beauty .
+	docker build -t mong0520/${APP} .
 
-update:
-	docker pull mong0520/linebot-ptt-beauty
-
-release:
-	docker push mong0520/linebot-ptt-beauty
-
-start:
+dev:
 	sudo docker-compose up -d app
 
-stop:
-	sudo docker-compose down
+push:
+	@docker tag ${APP} mong0520/${APP}
+	@docker push mong0520/${APP}
+	@heroku container:push web
 
-debug:
-	docker run -it --rm mong0520/linebot-ptt-beauty /bin/bash
+release:
+	@heroku container:release web
