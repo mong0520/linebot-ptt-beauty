@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"log"
+	"net"
 	"os"
 	"path"
 
@@ -15,8 +17,15 @@ var logger *log.Logger
 var meta = &models.Model{}
 var logRoot = "logs"
 
-func initDB(dbHostPort string) {
-	if session, err := mgo.Dial(dbHostPort); err != nil {
+func initDB(dbURI string) {
+	dialInfo, _ := mgo.ParseURL(dbURI)
+	tlsConfig := &tls.Config{}
+	dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
+		conn, err := tls.Dial("tcp", addr.String(), tlsConfig)
+		return conn, err
+	}
+
+	if session, err := mgo.DialWithInfo(dialInfo); err != nil {
 		logger.Fatalln("Unable to connect DB", err)
 	} else {
 		meta.Session = session
@@ -27,7 +36,8 @@ func initDB(dbHostPort string) {
 
 func main() {
 	logFile, err := initLogFile()
-	dbHostPort := os.Getenv("MongoDBHostPort")
+	// dbHostPort := os.Getenv("MongoDBHostPort")
+	dbURI := os.Getenv("MongoDBURI")
 	defer logFile.Close()
 
 	if err != nil {
@@ -35,8 +45,8 @@ func main() {
 	}
 	logger = utils.GetLogger(logFile)
 	meta.Log = logger
-	meta.Log.Println("Start to init DB...", dbHostPort)
-	initDB(dbHostPort)
+	meta.Log.Println("Start to init DB...", dbURI)
+	initDB(dbURI)
 	meta.Log.Println("...Done")
 
 	meta.Log.Println("Start to init Line Bot...")
