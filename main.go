@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"path"
+	"strconv"
 
 	"github.com/mong0520/linebot-ptt-beauty/bots"
 	"github.com/mong0520/linebot-ptt-beauty/models"
@@ -17,12 +18,15 @@ var logger *log.Logger
 var meta = &models.Model{}
 var logRoot = "logs"
 
-func initDB(dbURI string) {
+func initDB(dbURI string, enableSSL bool) {
 	dialInfo, _ := mgo.ParseURL(dbURI)
-	tlsConfig := &tls.Config{}
-	dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
-		conn, err := tls.Dial("tcp", addr.String(), tlsConfig)
-		return conn, err
+	logger.Printf("Connect to [%s] with Enable ssl := [%t]", dbURI, enableSSL)
+	if enableSSL {
+		tlsConfig := &tls.Config{}
+		dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
+			conn, err := tls.Dial("tcp", addr.String(), tlsConfig)
+			return conn, err
+		}
 	}
 
 	if session, err := mgo.DialWithInfo(dialInfo); err != nil {
@@ -38,6 +42,7 @@ func main() {
 	logFile, err := initLogFile()
 	// dbHostPort := os.Getenv("MongoDBHostPort")
 	dbURI := os.Getenv("MongoDBURI")
+	dbWithSSL, _ := strconv.ParseBool(os.Getenv("MongoDBSSL"))
 	defer logFile.Close()
 
 	if err != nil {
@@ -46,7 +51,7 @@ func main() {
 	logger = utils.GetLogger(logFile)
 	meta.Log = logger
 	meta.Log.Println("Start to init DB...", dbURI)
-	initDB(dbURI)
+	initDB(dbURI, dbWithSSL)
 	meta.Log.Println("...Done")
 
 	meta.Log.Println("Start to init Line Bot...")
