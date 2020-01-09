@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"time"
 
 	"github.com/mong0520/linebot-ptt-beauty/bots"
 	"github.com/mong0520/linebot-ptt-beauty/models"
@@ -20,6 +21,7 @@ var logRoot = "logs"
 
 func initDB(dbURI string, enableSSL bool) {
 	dialInfo, _ := mgo.ParseURL(dbURI)
+	dialInfo.Timeout = time.Second * 10
 	logger.Printf("Connect to [%s] with Enable ssl := [%t]", dbURI, enableSSL)
 	if enableSSL {
 		tlsConfig := &tls.Config{}
