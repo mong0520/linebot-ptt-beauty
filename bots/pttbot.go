@@ -60,6 +60,7 @@ func InitLineBot(m *models.Model, runMode string, sslCertPath string, sslPKeyPat
 	}
 	//log.Println("Bot:", bot, " err:", err)
 	http.HandleFunc("/callback", callbackHandler)
+	http.HandleFunc("/health", healthHandler)
 	port := os.Getenv("PORT")
 	//port := "8080"
 	addr := fmt.Sprintf(":%s", port)
@@ -77,6 +78,10 @@ func InitLineBot(m *models.Model, runMode string, sslCertPath string, sslPKeyPat
 			m.Log.Panic(err)
 		}
 	}
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(200)
 }
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
