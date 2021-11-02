@@ -33,7 +33,7 @@ func Get(collection *mgo.Collection, page int, perPage int) (results []models.Ar
 
 	ptt := NewPTT()
 	count := ptt.ParsePttPageByIndex(page)
-	for i := 0; i < count && i < 10; i++ {
+	for i := 0; i < count && i < perPage; i++ {
 		m := &models.ArticleDocument{}
 		m.ArticleTitle = ptt.GetPostTitleByIndex(i)
 		m.URL = ptt.GetPostUrlByIndex(i)
