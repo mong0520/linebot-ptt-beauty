@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/kkdai/linebot-ptt-beauty/models"
+	"github.com/kkdai/linebot-ptt-beauty/utils"
 	. "github.com/kkdai/photomgr"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -36,6 +37,7 @@ func Get(collection *mgo.Collection, page int, perPage int) (results []models.Ar
 		m := &models.ArticleDocument{}
 		m.ArticleTitle = ptt.GetPostTitleByIndex(i)
 		m.URL = ptt.GetPostUrlByIndex(i)
+		m.ArticleID = utils.GetPttIDFromURL(m.URL)
 		m.ImageLinks = ptt.GetAllImageAddress(m.URL)
 		ret = append(ret, *m)
 		// log.Printf("Get article: %s utl= %s obj=%x \n", m.ArticleTitle, m.URL, m)
