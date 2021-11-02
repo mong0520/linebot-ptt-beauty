@@ -267,7 +267,6 @@ func actionGeneral(event *linebot.Event, action string, values url.Values) {
 
 func actionAllImage(event *linebot.Event, values url.Values) {
 	if url := values.Get("url"); url != "" {
-
 		result, _ := controllers.GetOne(url)
 		template := getImgCarousTemplate(result, values)
 		sendImgCarouseMessage(event, template)
@@ -493,6 +492,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 	urls := record.ImageLinks
 	columnList := []*linebot.ImageCarouselColumn{}
 	articleID := values.Get("article_id")
+	targetUrl := values.Get("url")
 	page, _ := strconv.Atoi(values.Get("page"))
 	startIdx := page * 9
 	endIdx := startIdx + 9
@@ -511,7 +511,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 		columnList = append(columnList, tmpColumn)
 	}
 	if lastPage == false {
-		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=%d&url=%s", ActionAllImage, articleID, page+1, url)
+		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=%d&url=%s", ActionAllImage, articleID, page+1, targetUrl)
 		tmpColumn := linebot.NewImageCarouselColumn(
 			defaultImage,
 			linebot.NewPostbackAction("下一頁", postBackData, "", ""),
