@@ -9,6 +9,7 @@ import (
 
 	"github.com/kkdai/linebot-ptt-beauty/models"
 	"github.com/kkdai/linebot-ptt-beauty/utils"
+	. "github.com/kkdai/photomgr"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -31,16 +32,28 @@ func GetOne(collection *mgo.Collection, query bson.M) (result *models.ArticleDoc
 }
 
 func Get(collection *mgo.Collection, page int, perPage int) (results []models.ArticleDocument, err error) {
-	query := bson.M{"article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
-	//document := &models.ArticleDocument{}
-	//results, err = document.GeneralQueryAll(collection, query, "", -1)
-	err = collection.Find(query).Sort("-timestamp").Skip(page * perPage).Limit(perPage).All(&results)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	} else {
-		return results, nil
+	var ret []models.ArticleDocument
+
+	ptt := NewPTT()
+	count := ptt.ParsePttPageByIndex(page)
+	for i := 0; i < count; i++ {
+		m := &models.ArticleDocument{}
+		m.ArticleTitle = ptt.GetPostTitleByIndex(i)
+		m.URL = ptt.GetPostUrlByIndex(i)
+		ret = append(ret, *m)
 	}
+
+	// query := bson.M{"article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
+	// //document := &models.ArticleDocument{}
+	// //results, err = document.GeneralQueryAll(collection, query, "", -1)
+	// err = collection.Find(query).Sort("-timestamp").Skip(page * perPage).Limit(perPage).All(&results)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return nil, err
+	// } else {
+	// 	return results, nil
+	// }
+	return ret, nil
 }
 
 func GetAll(collection *mgo.Collection, query bson.M) (results []models.ArticleDocument, err error) {
