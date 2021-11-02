@@ -21,3 +21,4 @@ vendor/*/
 build.sh
 
 .env
+linebot-ptt-beauty
