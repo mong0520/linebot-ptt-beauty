@@ -319,23 +319,24 @@ func actionNewest(event *linebot.Event, values url.Values) {
 
 func getCarouseTemplate(userId string, records []models.ArticleDocument) (template *linebot.CarouselTemplate) {
 	if len(records) == 0 {
+		log.Println("err1")
 		return nil
 	}
 
 	columnList := []*linebot.CarouselColumn{}
-	userFavorite := &controllers.UserFavorite{
-		UserId:    userId,
-		Favorites: []string{},
-	}
-	userData, _ := userFavorite.Get(meta)
+	// userFavorite := &controllers.UserFavorite{
+	// 	UserId:    userId,
+	// 	Favorites: []string{},
+	// }
+	// userData, _ := userFavorite.Get(meta)
 	favLabel := ""
 
 	for _, result := range records {
-		if exist, _ := utils.InArray(result.ArticleID, userData.Favorites); exist == true {
-			favLabel = "❤️ 移除最愛"
-		} else {
-			favLabel = "💛 加入最愛"
-		}
+		// if exist, _ := utils.InArray(result.ArticleID, userData.Favorites); exist == true {
+		// 	favLabel = "❤️ 移除最愛"
+		// } else {
+		favLabel = "💛 加入最愛"
+		// }
 		thumnailUrl := defaultImage
 		imgUrlCounts := len(result.ImageLinks)
 		lable := fmt.Sprintf("%s (%d)", ActionAllImage, imgUrlCounts)

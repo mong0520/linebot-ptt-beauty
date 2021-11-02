@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"log"
 	"time"
 
 	"github.com/kkdai/linebot-ptt-beauty/models"
@@ -39,23 +38,11 @@ func Get(collection *mgo.Collection, page int, perPage int) (results []models.Ar
 		m.URL = ptt.GetPostUrlByIndex(i)
 		m.ImageLinks = ptt.GetAllImageAddress(m.URL)
 		ret = append(ret, *m)
-		log.Printf("Get article: %s utl= %s obj=%x \n", m.ArticleTitle, m.URL, m)
+		// log.Printf("Get article: %s utl= %s obj=%x \n", m.ArticleTitle, m.URL, m)
 	}
 
 	return ret, nil
 }
-
-// func GetAll(collection *mgo.Collection, query bson.M) (results []models.ArticleDocument, err error) {
-// 	document := &models.ArticleDocument{}
-// 	results, err = document.GeneralQueryAll(collection, query, "", -1)
-// 	if err != nil {
-// 		//fmt.Println(err)
-// 		return nil, err
-// 	} else {
-// 		//fmt.Printf("%+v", results)
-// 		return results, nil
-// 	}
-// }
 
 func GetRandom(collection *mgo.Collection, count int, keyword string) (results []models.ArticleDocument, err error) {
 	//document := &models.ArticleDocument{}
