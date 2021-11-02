@@ -37,6 +37,10 @@ func Get(page int, perPage int) (results []models.ArticleDocument, err error) {
 			post.URL = url
 			post.ArticleID = utils.GetPttIDFromURL(url)
 			post.ImageLinks = ptt.GetAllImageAddress(url)
+			like, dis := ptt.GetPostLikeDis(url)
+			post.MessageCount.Push = like
+			post.MessageCount.Boo = dis
+			post.MessageCount.All = like + dis
 			ret = append(ret, post)
 		}
 		// log.Printf("Get article: %s utl= %s obj=%x \n", m.ArticleTitle, m.URL, m)
