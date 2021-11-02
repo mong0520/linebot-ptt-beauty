@@ -2,7 +2,7 @@
 
  [![GoDoc](https://godoc.org/github.com/kkdai/linebot-ptt-beauty.svg?status.svg)](https://godoc.org/github.com/kkdai/linebot-ptt-beauty)  
 [![goreportcard.com](https://goreportcard.com/badge/github.com/kkdai/linebot-ptt-beauty)](https://goreportcard.com/report/github.com/kkdai/linebot-ptt-beauty)
-
+[![Go](https://github.com/kkdai/linebot-ptt-beauty/actions/workflows/go.yml/badge.svg)](https://github.com/kkdai/linebot-ptt-beauty/actions/workflows/go.yml)
 
 # How to use it
 ## For User
