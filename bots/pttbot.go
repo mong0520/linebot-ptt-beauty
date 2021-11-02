@@ -282,7 +282,7 @@ func actionNewest(event *linebot.Event, values url.Values) {
 	if currentPage, err := strconv.Atoi(values.Get("page")); err != nil {
 		meta.Log.Println("Unable to parse parameters", values)
 	} else {
-		records, _ := controllers.Get(meta.Collection, currentPage, columnCount)
+		records, _ := controllers.Get(currentPage, columnCount)
 		for idx, record := range records {
 			meta.Log.Printf("ID: %d, Date: %s, Title: %s", idx, record.Date, record.ArticleTitle)
 		}

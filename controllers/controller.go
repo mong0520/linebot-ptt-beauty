@@ -28,18 +28,21 @@ func GetOne(collection *mgo.Collection, query bson.M) (result *models.ArticleDoc
 	}
 }
 
-func Get(collection *mgo.Collection, page int, perPage int) (results []models.ArticleDocument, err error) {
+func Get(page int, perPage int) (results []models.ArticleDocument, err error) {
 	var ret []models.ArticleDocument
-
 	ptt := NewPTT()
 	count := ptt.ParsePttPageByIndex(page)
 	for i := 0; i < count && i < perPage; i++ {
-		m := &models.ArticleDocument{}
-		m.ArticleTitle = ptt.GetPostTitleByIndex(i)
-		m.URL = ptt.GetPostUrlByIndex(i)
-		m.ArticleID = utils.GetPttIDFromURL(m.URL)
-		m.ImageLinks = ptt.GetAllImageAddress(m.URL)
-		ret = append(ret, *m)
+		title := ptt.GetPostTitleByIndex(i)
+		if utils.CheckTitleWithBeauty(title) {
+			post := models.ArticleDocument{}
+			url := ptt.GetPostUrlByIndex(i)
+			post.ArticleTitle = title
+			post.URL = url
+			post.ArticleID = utils.GetPttIDFromURL(url)
+			post.ImageLinks = ptt.GetAllImageAddress(url)
+			ret = append(ret, post)
+		}
 		// log.Printf("Get article: %s utl= %s obj=%x \n", m.ArticleTitle, m.URL, m)
 	}
 

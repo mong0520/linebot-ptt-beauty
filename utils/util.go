@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -18,6 +19,11 @@ func GetLogger(f *os.File) (logger *log.Logger) {
 	}
 
 	return logger
+}
+
+func CheckTitleWithBeauty(title string) bool {
+	d, _ := regexp.MatchString("^\\[正妹\\].*", title)
+	return d
 }
 
 func GetPttIDFromURL(title string) string {
