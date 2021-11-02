@@ -16,16 +16,12 @@ type UserFavorite struct {
 	Favorites []string `json:"favorites" bson:"favorites"`
 }
 
-func GetOne(collection *mgo.Collection, query bson.M) (result *models.ArticleDocument, err error) {
-	//query := bson.M{"article_id": "M.1521548086.A.DCA"}
-	document := &models.ArticleDocument{}
-	result, err = document.GeneralQueryOne(collection, query)
-	if err != nil {
-		//fmt.Println(err)
-		return nil, err
-	} else {
-		return result, nil
-	}
+func GetOne(url string) (result *models.ArticleDocument, err error) {
+	ptt := NewPTT()
+	post := models.ArticleDocument{}
+	post.ArticleID = utils.GetPttIDFromURL(url)
+	post.ImageLinks = ptt.GetAllImageAddress(url)
+	return &post, nil
 }
 
 func Get(page int, perPage int) (results []models.ArticleDocument, err error) {

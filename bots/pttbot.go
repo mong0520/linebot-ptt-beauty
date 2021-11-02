@@ -15,7 +15,6 @@ import (
 	"github.com/kkdai/linebot-ptt-beauty/models"
 	"github.com/kkdai/linebot-ptt-beauty/utils"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
-	"gopkg.in/mgo.v2/bson"
 )
 
 var bot *linebot.Client
@@ -170,75 +169,75 @@ func actinoAddFavorite(event *linebot.Event, action string, values url.Values) {
 }
 
 func actionShowFavorite(event *linebot.Event, action string, values url.Values) {
-	columnCount := 9
-	userId := values.Get("user_id")
-	userFavorite := &controllers.UserFavorite{
-		UserId:    userId,
-		Favorites: []string{},
-	}
+	// columnCount := 9
+	// userId := values.Get("user_id")
+	// userFavorite := &controllers.UserFavorite{
+	// 	UserId:    userId,
+	// 	Favorites: []string{},
+	// }
 
-	if currentPage, err := strconv.Atoi(values.Get("page")); err != nil {
-		meta.Log.Println("Unable to parse parameters", values)
-	} else {
-		userData, _ := userFavorite.Get(meta)
+	// if currentPage, err := strconv.Atoi(values.Get("page")); err != nil {
+	// 	meta.Log.Println("Unable to parse parameters", values)
+	// } else {
+	// 	userData, _ := userFavorite.Get(meta)
 
-		// reverse slice
-		for i := len(userData.Favorites)/2 - 1; i >= 0; i-- {
-			opp := len(userData.Favorites) - 1 - i
-			userData.Favorites[i], userData.Favorites[opp] = userData.Favorites[opp], userData.Favorites[i]
-		}
+	// 	// reverse slice
+	// 	for i := len(userData.Favorites)/2 - 1; i >= 0; i-- {
+	// 		opp := len(userData.Favorites) - 1 - i
+	// 		userData.Favorites[i], userData.Favorites[opp] = userData.Favorites[opp], userData.Favorites[i]
+	// 	}
 
-		startIdx := currentPage * columnCount
-		endIdx := startIdx + columnCount
-		lastPage := false
-		if endIdx > len(userData.Favorites)-1 || startIdx > endIdx {
-			endIdx = len(userData.Favorites)
-			lastPage = true
-		}
+	// 	startIdx := currentPage * columnCount
+	// 	endIdx := startIdx + columnCount
+	// 	lastPage := false
+	// 	if endIdx > len(userData.Favorites)-1 || startIdx > endIdx {
+	// 		endIdx = len(userData.Favorites)
+	// 		lastPage = true
+	// 	}
 
-		fmt.Println("Start Index", startIdx)
-		fmt.Println("End Index", endIdx)
-		fmt.Println("Total Length", len(userData.Favorites))
+	// 	fmt.Println("Start Index", startIdx)
+	// 	fmt.Println("End Index", endIdx)
+	// 	fmt.Println("Total Length", len(userData.Favorites))
 
-		favDocuments := []models.ArticleDocument{}
-		favs := userData.Favorites[startIdx:endIdx]
-		fmt.Println(favs)
+	// 	favDocuments := []models.ArticleDocument{}
+	// 	favs := userData.Favorites[startIdx:endIdx]
+	// 	fmt.Println(favs)
 
-		for i := startIdx; i < endIdx; i++ {
-			favArticleId := userData.Favorites[i]
-			query := bson.M{"article_id": favArticleId}
-			tmpRecord, _ := controllers.GetOne(meta.Collection, query)
-			favDocuments = append(favDocuments, *tmpRecord)
-		}
+	// 	for i := startIdx; i < endIdx; i++ {
+	// 		favArticleId := userData.Favorites[i]
+	// 		query := bson.M{"article_id": favArticleId}
+	// 		tmpRecord, _ := controllers.GetOne(meta.Collection, query)
+	// 		favDocuments = append(favDocuments, *tmpRecord)
+	// 	}
 
-		// append next page column
-		previousPage := currentPage - 1
-		if previousPage < 0 {
-			previousPage = 0
-		}
-		nextPage := currentPage + 1
-		previousData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, previousPage, userId)
-		nextData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, nextPage, userId)
-		previousText := fmt.Sprintf("上一頁 %d", previousPage)
-		nextText := fmt.Sprintf("下一頁 %d", nextPage)
-		if lastPage == true {
-			nextData = "--"
-			nextText = "--"
-		}
+	// 	// append next page column
+	// 	previousPage := currentPage - 1
+	// 	if previousPage < 0 {
+	// 		previousPage = 0
+	// 	}
+	// 	nextPage := currentPage + 1
+	// 	previousData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, previousPage, userId)
+	// 	nextData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, nextPage, userId)
+	// 	previousText := fmt.Sprintf("上一頁 %d", previousPage)
+	// 	nextText := fmt.Sprintf("下一頁 %d", nextPage)
+	// 	if lastPage == true {
+	// 		nextData = "--"
+	// 		nextText = "--"
+	// 	}
 
-		tmpColumn := linebot.NewCarouselColumn(
-			defaultThumbnail,
-			DefaultTitle,
-			"繼續看？",
-			linebot.NewMessageAction(ActionHelp, ActionHelp),
-			linebot.NewPostbackAction(previousText, previousData, "", ""),
-			linebot.NewPostbackAction(nextText, nextData, "", ""),
-		)
+	// 	tmpColumn := linebot.NewCarouselColumn(
+	// 		defaultThumbnail,
+	// 		DefaultTitle,
+	// 		"繼續看？",
+	// 		linebot.NewMessageAction(ActionHelp, ActionHelp),
+	// 		linebot.NewPostbackAction(previousText, previousData, "", ""),
+	// 		linebot.NewPostbackAction(nextText, nextData, "", ""),
+	// 	)
 
-		template := getCarouseTemplate(event.Source.UserID, favDocuments)
-		template.Columns = append(template.Columns, tmpColumn)
-		sendCarouselMessage(event, template, "最愛照片已送達")
-	}
+	// 	template := getCarouseTemplate(event.Source.UserID, favDocuments)
+	// 	template.Columns = append(template.Columns, tmpColumn)
+	// 	sendCarouselMessage(event, template, "最愛照片已送達")
+	// }
 }
 
 func actionGeneral(event *linebot.Event, action string, values url.Values) {
@@ -267,9 +266,9 @@ func actionGeneral(event *linebot.Event, action string, values url.Values) {
 }
 
 func actionAllImage(event *linebot.Event, values url.Values) {
-	if articleId := values.Get("article_id"); articleId != "" {
-		query := bson.M{"article_id": articleId}
-		result, _ := controllers.GetOne(meta.Collection, query)
+	if url := values.Get("url"); url != "" {
+
+		result, _ := controllers.GetOne(url)
 		template := getImgCarousTemplate(result, values)
 		sendImgCarouseMessage(event, template)
 	} else {
@@ -341,7 +340,7 @@ func getCarouseTemplate(userId string, records []models.ArticleDocument) (templa
 		imgUrlCounts := len(result.ImageLinks)
 		lable := fmt.Sprintf("%s (%d)", ActionAllImage, imgUrlCounts)
 		title := result.ArticleTitle
-		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=0", ActionAllImage, result.ArticleID)
+		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=0&url=%s", ActionAllImage, result.ArticleID, result.URL)
 		text := fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo)
 
 		if imgUrlCounts > 0 {
