@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/line/line-bot-sdk-go/linebot"
-	"github.com/mong0520/linebot-ptt-beauty/controllers"
-	"github.com/mong0520/linebot-ptt-beauty/models"
-	"github.com/mong0520/linebot-ptt-beauty/utils"
+	"github.com/kkdai/linebot-ptt-beauty/controllers"
+	"github.com/kkdai/linebot-ptt-beauty/models"
+	"github.com/kkdai/linebot-ptt-beauty/utils"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -81,7 +81,7 @@ func InitLineBot(m *models.Model, runMode string, sslCertPath string, sslPKeyPat
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-    w.WriteHeader(200)
+	w.WriteHeader(200)
 }
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {

@@ -5,9 +5,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/mong0520/linebot-ptt-beauty/bots"
-	"github.com/mong0520/linebot-ptt-beauty/models"
-	"github.com/mong0520/linebot-ptt-beauty/utils"
+	"github.com/kkdai/linebot-ptt-beauty/bots"
+	"github.com/kkdai/linebot-ptt-beauty/models"
+	"github.com/kkdai/linebot-ptt-beauty/utils"
 )
 
 var logger *log.Logger
