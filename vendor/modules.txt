@@ -2,11 +2,11 @@
 github.com/PuerkitoBio/goquery
 # github.com/andybalholm/cascadia v1.3.1
 github.com/andybalholm/cascadia
-# github.com/kkdai/photomgr v0.3.4
+# github.com/kkdai/photomgr v0.3.5
 github.com/kkdai/photomgr
 # github.com/line/line-bot-sdk-go/v7 v7.11.0
 github.com/line/line-bot-sdk-go/v7/linebot
-# golang.org/x/net v0.0.0-20211101193420-4a448f8816b3
+# golang.org/x/net v0.0.0-20211104170005-ce137452f963
 golang.org/x/net/html
 golang.org/x/net/html/atom
 # gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
