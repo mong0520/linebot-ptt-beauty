@@ -120,12 +120,9 @@ func (u *UserFavorite) Get(meta *models.Model) (result *UserFavorite, err error)
 }
 
 func (u *UserFavorite) Update(meta *models.Model) (err error) {
-	// meta.Log.Println(u.UserId)
-	// query := bson.M{"user_id": u.UserId}
-	// if err := meta.CollectionUserFavorite.Update(query, u); err != nil {
-	// 	meta.Log.Println(err)
-	// 	return err
-	// } else {
+	_, err = meta.Db.Model(u).WherePK().Update()
+	if err != nil {
+		meta.Log.Println(err)
+	}
 	return nil
-	// }
 }
