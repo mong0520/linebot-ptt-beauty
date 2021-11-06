@@ -12,6 +12,8 @@ github.com/go-pg/pg/v10/pgjson
 github.com/go-pg/pg/v10/types
 # github.com/go-pg/zerochecker v0.2.0
 github.com/go-pg/zerochecker
+# github.com/go-sql-driver/mysql v1.6.0
+github.com/go-sql-driver/mysql
 # github.com/jinzhu/inflection v1.0.0
 github.com/jinzhu/inflection
 # github.com/kkdai/photomgr v0.4.0
