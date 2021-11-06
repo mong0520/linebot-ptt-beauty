@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"log"
 	"time"
 
 	"github.com/kkdai/linebot-ptt-beauty/models"
@@ -71,6 +72,7 @@ func GetRandom(count int, keyword string) (results []models.ArticleDocument, err
 			post.MessageCount.Boo = dis
 			post.MessageCount.All = like + dis
 			ret = append(ret, post)
+			log.Printf("%d th rand =%d title=%s url=%s images(1)=%s \n", i, rands[i], title, url, post.ImageLinks[0])
 		}
 	}
 	return ret, nil
