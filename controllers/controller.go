@@ -107,14 +107,16 @@ func (u *UserFavorite) Add(meta *models.Model) {
 }
 
 func (u *UserFavorite) Get(meta *models.Model) (result *UserFavorite, err error) {
-	// meta.Log.Println(u.UserId)
-	// query := bson.M{"user_id": u.UserId}
-	// if err := meta.CollectionUserFavorite.Find(query).One(&result) ; err != nil{
-	//     meta.Log.Println(err)
-	//     return nil, err
-	// }else{
-	return result, nil
-	// }
+	meta.Log.Println(u.UserId)
+	userFav := new(UserFavorite)
+	err = meta.Db.Model(userFav).
+		Where("UserFavorite.UserId = ?", u.UserId).
+		Select()
+	if err != nil {
+		panic(err)
+	}
+	meta.Log.Println("UserFavorite DB result= ", userFav)
+	return userFav, nil
 }
 
 func (u *UserFavorite) Update(meta *models.Model) (err error) {
