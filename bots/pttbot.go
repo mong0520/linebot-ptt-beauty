@@ -401,6 +401,8 @@ func textHander(event *linebot.Event, message string) {
 	}
 	switch message {
 	case ActionHelp:
+	case "Help":
+	case "Menu":
 		template := getMenuButtonTemplateV2(event, DefaultTitle)
 		sendCarouselMessage(event, template, "我能為您做什麼？")
 	case ActionRandom:
