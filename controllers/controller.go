@@ -62,7 +62,7 @@ func GetRandom(count int, keyword string) (results []models.ArticleDocument, err
 		title := ptt.GetPostTitleByIndex(rands[i])
 		if utils.CheckTitleWithBeauty(title) {
 			post := models.ArticleDocument{}
-			url := ptt.GetPostUrlByIndex(i)
+			url := ptt.GetPostUrlByIndex(rands[i])
 			post.ArticleTitle = title
 			post.URL = url
 			post.ArticleID = utils.GetPttIDFromURL(url)
