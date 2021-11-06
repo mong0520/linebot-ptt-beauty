@@ -250,7 +250,7 @@ func actionGeneral(event *linebot.Event, action string, values url.Values) {
 		//meta.Log.Println(values.Get("period"))
 		tsOffset, _ := strconv.Atoi(values.Get("period"))
 		meta.Log.Println("timestampe off set = ", tsOffset)
-		records, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, tsOffset)
+		records, _ = controllers.GetMostLike(maxCountOfCarousel, tsOffset)
 		label = "已幫您查詢到一些照片~"
 	case ActionRandom:
 		records, _ = controllers.GetRandom(maxCountOfCarousel, "")
