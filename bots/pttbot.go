@@ -253,7 +253,7 @@ func actionGeneral(event *linebot.Event, action string, values url.Values) {
 		records, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, tsOffset)
 		label = "已幫您查詢到一些照片~"
 	case ActionRandom:
-		records, _ = controllers.GetRandom(meta.Collection, maxCountOfCarousel, "")
+		records, _ = controllers.GetRandom(maxCountOfCarousel, "")
 		label = "隨機表特已送到囉"
 	default:
 		return
@@ -405,7 +405,7 @@ func textHander(event *linebot.Event, message string) {
 		template := getMenuButtonTemplateV2(event, DefaultTitle)
 		sendCarouselMessage(event, template, "我能為您做什麼？")
 	case ActionRandom:
-		records, _ := controllers.GetRandom(meta.Collection, maxCountOfCarousel, "")
+		records, _ := controllers.GetRandom(maxCountOfCarousel, "")
 		template := getCarouseTemplate(event.Source.UserID, records)
 		sendCarouselMessage(event, template, "隨機表特已送到囉")
 	case ActionNewest:
@@ -442,7 +442,7 @@ func textHander(event *linebot.Event, message string) {
 		}
 
 		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == "" {
-			records, _ := controllers.GetRandom(meta.Collection, maxCountOfCarousel, message)
+			records, _ := controllers.GetRandom(maxCountOfCarousel, message)
 			if records != nil && len(records) > 0 {
 				template := getCarouseTemplate(event.Source.UserID, records)
 				sendCarouselMessage(event, template, "隨機表特已送到囉")

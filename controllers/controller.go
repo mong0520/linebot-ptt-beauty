@@ -49,58 +49,31 @@ func Get(page int, perPage int) (results []models.ArticleDocument, err error) {
 	return ret, nil
 }
 
-func GetRandom(collection *mgo.Collection, count int, keyword string) (results []models.ArticleDocument, err error) {
-	//document := &models.ArticleDocument{}
-	//query := bson.M{"message_count.all": bson.M{"$gt": like}, "ArticleTitle": "/正妹/"}
-	//query := bson.M{"ArticleTitle": bson.RegEx{"*", ""}}
-	//query := bson.M{"ArticleTitle": bson.RegEx{".+", ""}}
-	//query := bson.M{"$sample": bson.M{"size": 10}}
-	//log.Println("here")
-	// query := bson.M{}
-	// baseline_ts := 1420070400 // 2015年Jan/1/00:00:00 之後
-	// needRandom := true
-	// if keyword == "" {
-	// 	query = bson.M{"timestamp": bson.M{"$gte": baseline_ts}, "article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
-	// } else {
-	// 	query = bson.M{
-	// 		"timestamp":     bson.M{"$gte": baseline_ts},
-	// 		"article_title": bson.M{"$regex": bson.RegEx{fmt.Sprintf("^(?!\\[公告\\]).*%s.*", strings.ToLower(keyword)), ""}}}
-	// 	// not start with [公告]
-	// }
-
-	// total, _ := collection.Find(query).Count()
-	// fmt.Println("total = ", total)
-	// if total == 0 {
-	// 	return nil, errors.New("NotFound")
-	// } else if total < count {
-	// 	count = total
-	// 	needRandom = false
-	// }
-	// fmt.Println("count = ", count)
-	// if needRandom {
-	// 	randSkip := utils.GetRandomIntSet(total, count)
-	// 	//rand.Seed(time.Now().UnixNano())
-	// 	for i := 0; i < count; i++ {
-	// 		//skip := rand.Intn(total)
-	// 		skip := randSkip[i]
-	// 		result := &models.ArticleDocument{}
-	// 		collection.Find(query).Skip(skip).One(result)
-	// 		//fmt.Println(skip)
-	// 		results = append(results, *result)
-	// 	}
-	// 	sort.Slice(results, func(i, j int) bool {
-	// 		return results[i].MessageCount.Push > results[j].MessageCount.Push
-	// 	})
-	// } else {
-	// 	document := &models.ArticleDocument{}
-	// 	results, err = document.GeneralQueryAll(collection, query, "-message_count.push", count)
-	// }
-
-	// if err != nil {
-	return nil, errors.New("NotFound")
-	// } else {
-	// 	return results, nil
-	// }
+func GetRandom(count int, keyword string) (results []models.ArticleDocument, err error) {
+	rands := utils.GetRandomIntSet(100, 10)
+	ptt := NewPTT()
+	pCount := ptt.ParsePttByNumber(101, 0)
+	if pCount == 0 {
+		return nil, errors.New("NotFound")
+	}
+	var ret []models.ArticleDocument
+	for i := 0; i < count; i++ {
+		title := ptt.GetPostTitleByIndex(rands[i])
+		if utils.CheckTitleWithBeauty(title) {
+			post := models.ArticleDocument{}
+			url := ptt.GetPostUrlByIndex(i)
+			post.ArticleTitle = title
+			post.URL = url
+			post.ArticleID = utils.GetPttIDFromURL(url)
+			post.ImageLinks = ptt.GetAllImageAddress(url)
+			like, dis := ptt.GetPostLikeDis(url)
+			post.MessageCount.Push = like
+			post.MessageCount.Boo = dis
+			post.MessageCount.All = like + dis
+			ret = append(ret, post)
+		}
+	}
+	return ret, nil
 }
 
 func GetMostLike(collection *mgo.Collection, count int, timestampOffset int) (results []models.ArticleDocument, err error) {
