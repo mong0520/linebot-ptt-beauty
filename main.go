@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/kkdai/linebot-ptt-beauty/bots"
 	"github.com/kkdai/linebot-ptt-beauty/controllers"
 	"github.com/kkdai/linebot-ptt-beauty/models"
