@@ -50,7 +50,30 @@ func Get(page int, perPage int) (results []models.ArticleDocument, err error) {
 }
 
 func GetRandom(count int, keyword string) (results []models.ArticleDocument, err error) {
-	return nil, errors.New("NotFound")
+	rands := utils.GetRandomIntSet(100, 10)
+	ptt := NewPTT()
+	pCount := ptt.ParsePttByNumber(101, 0)
+	if pCount == 0 {
+		return nil, errors.New("NotFound")
+	}
+	var ret []models.ArticleDocument
+	for i := 0; i < count; i++ {
+		title := ptt.GetPostTitleByIndex(rands[i])
+		if utils.CheckTitleWithBeauty(title) {
+			post := models.ArticleDocument{}
+			url := ptt.GetPostUrlByIndex(i)
+			post.ArticleTitle = title
+			post.URL = url
+			post.ArticleID = utils.GetPttIDFromURL(url)
+			post.ImageLinks = ptt.GetAllImageAddress(url)
+			like, dis := ptt.GetPostLikeDis(url)
+			post.MessageCount.Push = like
+			post.MessageCount.Boo = dis
+			post.MessageCount.All = like + dis
+			ret = append(ret, post)
+		}
+	}
+	return ret, nil
 }
 
 func GetMostLike(collection *mgo.Collection, count int, timestampOffset int) (results []models.ArticleDocument, err error) {
