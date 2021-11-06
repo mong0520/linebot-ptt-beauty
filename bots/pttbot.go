@@ -57,11 +57,10 @@ func InitLineBot(m *models.Model, runMode string, sslCertPath string, sslPKeyPat
 	if err != nil {
 		log.Println(err)
 	}
-	//log.Println("Bot:", bot, " err:", err)
 	http.HandleFunc("/callback", callbackHandler)
 	http.HandleFunc("/health", healthHandler)
 	port := os.Getenv("PORT")
-	//port := "8080"
+
 	addr := fmt.Sprintf(":%s", port)
 	m.Log.Printf("Run Mode = %s\n", runMode)
 	if strings.ToLower(runMode) == ModeHTTPS {
@@ -250,7 +249,7 @@ func actionGeneral(event *linebot.Event, action string, values url.Values) {
 		//meta.Log.Println(values.Get("period"))
 		tsOffset, _ := strconv.Atoi(values.Get("period"))
 		meta.Log.Println("timestampe off set = ", tsOffset)
-		records, _ = controllers.GetMostLike(meta.Collection, maxCountOfCarousel, tsOffset)
+		records, _ = controllers.GetMostLike(maxCountOfCarousel, tsOffset)
 		label = "已幫您查詢到一些照片~"
 	case ActionRandom:
 		records, _ = controllers.GetRandom(maxCountOfCarousel, "")

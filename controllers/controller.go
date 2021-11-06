@@ -3,13 +3,10 @@ package controllers
 import (
 	"errors"
 	"log"
-	"time"
 
 	"github.com/kkdai/linebot-ptt-beauty/models"
 	"github.com/kkdai/linebot-ptt-beauty/utils"
 	. "github.com/kkdai/photomgr"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type UserFavorite struct {
@@ -78,54 +75,54 @@ func GetRandom(count int, keyword string) (results []models.ArticleDocument, err
 	return ret, nil
 }
 
-func GetMostLike(collection *mgo.Collection, count int, timestampOffset int) (results []models.ArticleDocument, err error) {
-	document := &models.ArticleDocument{}
-	//query := bson.M{"message_count.all": bson.M{"$gt": like}, "ArticleTitle": "/正妹/"}
-	//query := bson.M{"ArticleTitle": bson.RegEx{"*", ""}}
-	//query := bson.M{"ArticleTitle": bson.RegEx{".+", ""}}
-	query := bson.M{}
-	if timestampOffset > 0 {
-		now := time.Now()
-		nowInSec := int(now.Unix())
-		start := nowInSec - timestampOffset
-		//{"timestamp": {"$gte":  1, "$lt": 9999999999}}
-		query = bson.M{"timestamp": bson.M{"$gte": start, "$lt": nowInSec}, "article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
-	} else {
-		query = bson.M{"article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
-	}
-	results, err = document.GeneralQueryAll(collection, query, "-message_count.push", count)
-	if err != nil {
-		//fmt.Println(err)
-		return nil, err
-	} else {
-		return results, nil
-	}
+func GetMostLike(count int, timestampOffset int) (results []models.ArticleDocument, err error) {
+	// document := &models.ArticleDocument{}
+	// //query := bson.M{"message_count.all": bson.M{"$gt": like}, "ArticleTitle": "/正妹/"}
+	// //query := bson.M{"ArticleTitle": bson.RegEx{"*", ""}}
+	// //query := bson.M{"ArticleTitle": bson.RegEx{".+", ""}}
+	// query := bson.M{}
+	// if timestampOffset > 0 {
+	// 	now := time.Now()
+	// 	nowInSec := int(now.Unix())
+	// 	start := nowInSec - timestampOffset
+	// 	//{"timestamp": {"$gte":  1, "$lt": 9999999999}}
+	// 	query = bson.M{"timestamp": bson.M{"$gte": start, "$lt": nowInSec}, "article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
+	// } else {
+	// 	query = bson.M{"article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
+	// }
+	// results, err = document.GeneralQueryAll(collection, query, "-message_count.push", count)
+	// if err != nil {
+	// 	//fmt.Println(err)
+	// 	return nil, err
+	// } else {
+	return results, nil
+	// }
 }
 
 func (u *UserFavorite) Add(meta *models.Model) {
-	if err := meta.CollectionUserFavorite.Insert(u); err != nil {
+	_, err := meta.Db.Model(u).Insert()
+	if err != nil {
 		meta.Log.Println(err)
 	}
 }
 
 func (u *UserFavorite) Get(meta *models.Model) (result *UserFavorite, err error) {
-	// meta.Log.Println(u.UserId)
-	// query := bson.M{"user_id": u.UserId}
-	// if err := meta.CollectionUserFavorite.Find(query).One(&result) ; err != nil{
-	//     meta.Log.Println(err)
-	//     return nil, err
-	// }else{
-	return result, nil
-	// }
+	meta.Log.Println(u.UserId)
+	userFav := new(UserFavorite)
+	err = meta.Db.Model(userFav).
+		Where("UserFavorite.UserId = ?", u.UserId).
+		Select()
+	if err != nil {
+		panic(err)
+	}
+	meta.Log.Println("UserFavorite DB result= ", userFav)
+	return userFav, nil
 }
 
 func (u *UserFavorite) Update(meta *models.Model) (err error) {
-	// meta.Log.Println(u.UserId)
-	// query := bson.M{"user_id": u.UserId}
-	// if err := meta.CollectionUserFavorite.Update(query, u); err != nil {
-	// 	meta.Log.Println(err)
-	// 	return err
-	// } else {
+	_, err = meta.Db.Model(u).WherePK().Update()
+	if err != nil {
+		meta.Log.Println(err)
+	}
 	return nil
-	// }
 }

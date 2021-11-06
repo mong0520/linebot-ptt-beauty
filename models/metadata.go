@@ -2,18 +2,17 @@ package models
 
 import (
 	"encoding/json"
+	"log"
+
+	"github.com/go-pg/pg/v10"
+
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
 )
 
-
-
 type Model struct {
-	Session                *mgo.Session
-	Collection             *mgo.Collection
-	CollectionUserFavorite *mgo.Collection
-	Log                    *log.Logger
+	Db  *pg.DB
+	Log *log.Logger
 }
 
 type MessageCount struct {
