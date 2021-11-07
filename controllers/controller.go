@@ -121,6 +121,8 @@ func (u *UserFavorite) Get(meta *models.Model) (result *UserFavorite, err error)
 }
 
 func (u *UserFavorite) Update(meta *models.Model) (err error) {
+	log.Println("***Update Fav User=", u)
+
 	_, err = meta.Db.Model(u).WherePK().Update()
 	if err != nil {
 		meta.Log.Println(err)
