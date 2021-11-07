@@ -103,6 +103,16 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
+				if message.Text == "cleandb" {
+					log.Println("get clean db OP--->")
+					userFavorite := &controllers.UserFavorite{
+						UserId:    event.Source.UserID,
+						Favorites: []string{},
+					}
+					userFavorite.CleanDB(meta)
+					sendTextMessage(event, "Already clean all DB.")
+					return
+				}
 				meta.Log.Println("Text = ", message.Text)
 				textHander(event, message.Text)
 			default:

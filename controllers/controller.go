@@ -108,7 +108,7 @@ func (u *UserFavorite) Add(meta *models.Model) {
 
 func (u *UserFavorite) Get(meta *models.Model) (result *UserFavorite, err error) {
 	log.Println("***Get Fav uUID=", u.UserId)
-	userFav := new(UserFavorite)
+	userFav := UserFavorite{}
 	err = meta.Db.Model(&userFav).
 		Where("UserFavorite.UserId = ?", u.UserId).
 		Select()
@@ -117,7 +117,7 @@ func (u *UserFavorite) Get(meta *models.Model) (result *UserFavorite, err error)
 		return nil, err
 	}
 	meta.Log.Println("UserFavorite DB result= ", userFav)
-	return userFav, nil
+	return &userFav, nil
 }
 
 func (u *UserFavorite) Update(meta *models.Model) (err error) {
@@ -127,5 +127,23 @@ func (u *UserFavorite) Update(meta *models.Model) (err error) {
 	if err != nil {
 		meta.Log.Println(err)
 	}
+	return nil
+}
+
+func (u *UserFavorite) CleanDB(meta *models.Model) (err error) {
+	log.Println("***Clean all User=")
+	_, err = meta.Db.Model(u).Delete()
+	if err != nil {
+		meta.Log.Println(err)
+	}
+
+	//Check all users again
+	users := []UserFavorite{}
+	err = meta.Db.Model(&users).Select()
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("***Check all users again =", users)
+
 	return nil
 }
