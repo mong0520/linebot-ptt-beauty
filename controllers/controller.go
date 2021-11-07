@@ -132,7 +132,9 @@ func (u *UserFavorite) Update(meta *models.Model) (err error) {
 
 func (u *UserFavorite) CleanDB(meta *models.Model) (err error) {
 	log.Println("***Clean all User=")
-	_, err = meta.Db.Model(u).Delete()
+	_, err = meta.Db.Model(u).
+		Where("UserFavorite.UserId = ?", u.UserId).
+		Delete()
 	if err != nil {
 		meta.Log.Println(err)
 	}
