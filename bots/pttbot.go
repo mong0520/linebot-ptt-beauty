@@ -419,6 +419,7 @@ func textHander(event *linebot.Event, message string) {
 		meta.Log.Println("User data is not created, create a new one")
 		userFavorite.Add(meta)
 	}
+	log.Println("txMSG=", message)
 	switch message {
 	case ActionHelp:
 	case "Help":
