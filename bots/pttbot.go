@@ -112,6 +112,15 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 					userFavorite.CleanDB(meta)
 					sendTextMessage(event, "Already clean all DB.")
 					return
+				} else if message.Text == "showall" {
+					log.Println("get show all user OP--->")
+					userFavorite := &controllers.UserFavorite{
+						UserId:    event.Source.UserID,
+						Favorites: []string{},
+					}
+					userFavorite.ShowAll(meta)
+					sendTextMessage(event, "Already show all user DB OP.")
+					return
 				}
 				meta.Log.Println("Text = ", message.Text)
 				textHander(event, message.Text)
