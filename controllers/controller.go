@@ -111,8 +111,8 @@ func (u *UserFavorite) Get(meta *models.Model) (result *UserFavorite, err error)
 	log.Println("***Get Fav uUID=", u.UserId)
 	userFav := UserFavorite{}
 	err = meta.Db.Model(&userFav).
-		Where("UserFavorite.UserId = ?", u.UserId).
-		WherePK().
+		Table("userfavorite").
+		Where("userid = ?", u.UserId).
 		Select()
 	if err != nil {
 		meta.Log.Println(err)
@@ -135,7 +135,8 @@ func (u *UserFavorite) Update(meta *models.Model) (err error) {
 func (u *UserFavorite) CleanDB(meta *models.Model) (err error) {
 	log.Println("***Clean all User=")
 	_, err = meta.Db.Model(u).
-		Where("UserFavorite.UserId = ?", u.UserId).
+		Table("userfavorite").
+		Where("userid = ?", u.UserId).
 		Delete()
 	if err != nil {
 		meta.Log.Println(err)
