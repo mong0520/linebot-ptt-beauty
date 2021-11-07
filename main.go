@@ -65,9 +65,14 @@ func createSchema(db *pg.DB) error {
 	}
 
 	for _, model := range models {
-		err := db.Model(model).CreateTable(&orm.CreateTableOptions{
-			IfNotExists: true,
-		})
+		err := db.Model(model).DropTable(&orm.DropTableOptions{
+			IfExists: true})
+		if err != nil {
+			return err
+		}
+
+		err = db.Model(model).CreateTable(&orm.CreateTableOptions{
+			IfNotExists: true})
 		if err != nil {
 			return err
 		}
