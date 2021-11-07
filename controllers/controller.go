@@ -109,7 +109,7 @@ func (u *UserFavorite) Add(meta *models.Model) {
 func (u *UserFavorite) Get(meta *models.Model) (result *UserFavorite, err error) {
 	log.Println("***Get Fav uUID=", u.UserId)
 	userFav := new(UserFavorite)
-	err = meta.Db.Model(userFav).
+	err = meta.Db.Model(&userFav).
 		Where("UserFavorite.UserId = ?", u.UserId).
 		Select()
 	if err != nil {
