@@ -112,6 +112,7 @@ func (u *UserFavorite) Get(meta *models.Model) (result *UserFavorite, err error)
 	userFav := UserFavorite{}
 	err = meta.Db.Model(&userFav).
 		Where("UserFavorite.UserId = ?", u.UserId).
+		WherePK().
 		Select()
 	if err != nil {
 		meta.Log.Println(err)
