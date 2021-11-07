@@ -32,8 +32,8 @@ func main() {
 		panic(err)
 	}
 
-	users := []*controllers.UserFavorite{}
-	err = db.Model(users).Select()
+	users := []controllers.UserFavorite{}
+	err = db.Model(&users).Select()
 	if err != nil {
 		log.Println(err)
 	}
