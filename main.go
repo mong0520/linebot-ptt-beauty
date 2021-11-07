@@ -32,6 +32,12 @@ func main() {
 		panic(err)
 	}
 
+	users := []*controllers.UserFavorite{}
+	err = db.Model(users).Select()
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("***Start server all users =", users)
 	if err != nil {
 		logger.Fatalln("open file error !")
 	}

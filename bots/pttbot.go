@@ -144,6 +144,7 @@ func actinoAddFavorite(event *linebot.Event, action string, values url.Values) {
 		UserId:    userId,
 		Favorites: []string{newFavoriteArticle},
 	}
+	log.Println("Add Fav UID", userFavorite.UserId, " Fav[]=", userFavorite.Favorites)
 	latestFavArticles := []string{}
 	if record, err := userFavorite.Get(meta); err != nil {
 		meta.Log.Println("User data is not created, create a new one")
