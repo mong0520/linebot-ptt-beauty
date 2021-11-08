@@ -208,10 +208,10 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 
 		startIdx := currentPage * columnCount
 		endIdx := startIdx + columnCount
-		lastPage := false
+		// lastPage := false
 		if endIdx > len(userData.Favorites)-1 || startIdx > endIdx {
 			endIdx = len(userData.Favorites)
-			lastPage = true
+			// lastPage = true
 		}
 
 		log.Println("Start Index", startIdx)
@@ -228,6 +228,13 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			log.Printf("Favorites[%d] url=%s title=%s \n", i, url, tmpRecord.ArticleTitle)
 			favDocuments = append(favDocuments, *tmpRecord)
 		}
+		//<<
+		template := getCarouseTemplate(event.Source.UserID, favDocuments)
+
+		if template == nil {
+			meta.Log.Println("Unable to get template", values)
+			return
+		}
 
 		// append next page column
 		previousPage := currentPage - 1
@@ -235,15 +242,10 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			previousPage = 0
 		}
 		nextPage := currentPage + 1
-		previousData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, previousPage, userId)
-		nextData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, nextPage, userId)
+		previousData := fmt.Sprintf("action=%s&page=%d", ActionNewest, previousPage)
+		nextData := fmt.Sprintf("action=%s&page=%d", ActionNewest, nextPage)
 		previousText := fmt.Sprintf("上一頁 %d", previousPage)
 		nextText := fmt.Sprintf("下一頁 %d", nextPage)
-		if lastPage == true {
-			nextData = "--"
-			nextText = "--"
-		}
-
 		tmpColumn := linebot.NewCarouselColumn(
 			defaultThumbnail,
 			DefaultTitle,
@@ -252,13 +254,39 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			linebot.NewPostbackAction(previousText, previousData, "", ""),
 			linebot.NewPostbackAction(nextText, nextData, "", ""),
 		)
-
-		for k, v := range favDocuments {
-			log.Println("Fav k=", k, "v=", v)
-		}
-
-		template := getCarouseTemplate(event.Source.UserID, favDocuments)
 		template.Columns = append(template.Columns, tmpColumn)
+		//>>
+
+		// append next page column
+		// previousPage := currentPage - 1
+		// if previousPage < 0 {
+		// 	previousPage = 0
+		// }
+		// nextPage := currentPage + 1
+		// previousData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, previousPage, userId)
+		// nextData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, nextPage, userId)
+		// previousText := fmt.Sprintf("上一頁 %d", previousPage)
+		// nextText := fmt.Sprintf("下一頁 %d", nextPage)
+		// if lastPage == true {
+		// 	nextData = "--"
+		// 	nextText = "--"
+		// }
+
+		// tmpColumn := linebot.NewCarouselColumn(
+		// 	defaultThumbnail,
+		// 	DefaultTitle,
+		// 	"繼續看？",
+		// 	linebot.NewMessageAction(ActionHelp, ActionHelp),
+		// 	linebot.NewPostbackAction(previousText, previousData, "", ""),
+		// 	linebot.NewPostbackAction(nextText, nextData, "", ""),
+		// )
+
+		// for k, v := range favDocuments {
+		// 	log.Println("Fav k=", k, "v=", v)
+		// }
+
+		// template := getCarouseTemplate(event.Source.UserID, favDocuments)
+		// template.Columns = append(template.Columns, tmpColumn)
 		sendCarouselMessage(event, template, "最愛照片已送達")
 	}
 }
