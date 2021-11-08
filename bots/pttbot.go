@@ -226,7 +226,7 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			url := userData.Favorites[i]
 			log.Printf("Favorites[%d] url=%s \n", i, url)
 			tmpRecord, _ := controllers.GetOne(url)
-			log.Printf("Favorites[%d] record=%x \n", i, tmpRecord)
+			log.Printf("Favorites[%d] title=%s image0=%s \n", i, tmpRecord.ArticleTitle, tmpRecord.ImageLinks[0])
 			favDocuments = append(favDocuments, *tmpRecord)
 		}
 
@@ -253,6 +253,10 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			linebot.NewPostbackAction(previousText, previousData, "", ""),
 			linebot.NewPostbackAction(nextText, nextData, "", ""),
 		)
+
+		for k, v := range favDocuments {
+			log.Println("Fav k=", k, "v=", v)
+		}
 
 		template := getCarouseTemplate(event.Source.UserID, favDocuments)
 		template.Columns = append(template.Columns, tmpColumn)
