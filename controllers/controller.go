@@ -21,7 +21,7 @@ func GetOne(url string) (result *models.ArticleDocument, err error) {
 	post.URL = url
 	post.ArticleID = utils.GetPttIDFromURL(url)
 	post.ArticleTitle = ptt.GetUrlTitle(url)
-	post.ImageLinks = ptt.GetUrlPhotos(url)
+	post.ImageLinks = ptt.GetAllImageAddress(url)
 	like, dis := ptt.GetPostLikeDis(url)
 	post.MessageCount.Push = like
 	post.MessageCount.Boo = dis
