@@ -214,10 +214,6 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			lastPage = true
 		}
 
-		log.Println("Start Index", startIdx)
-		log.Println("End Index", endIdx)
-		log.Println("Total Length", len(userData.Favorites))
-
 		favDocuments := []models.ArticleDocument{}
 		favs := userData.Favorites[startIdx:endIdx]
 		log.Println(favs)
@@ -225,7 +221,6 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 		for i := startIdx; i < endIdx; i++ {
 			url := userData.Favorites[i]
 			tmpRecord, _ := controllers.GetOne(url)
-			log.Printf("Favorites[%d] url=%s title=%s \n", i, url, tmpRecord.ArticleTitle)
 			favDocuments = append(favDocuments, *tmpRecord)
 		}
 
