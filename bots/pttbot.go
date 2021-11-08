@@ -552,6 +552,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 	urls := record.ImageLinks
 	columnList := []*linebot.ImageCarouselColumn{}
 	targetUrl := values.Get("url")
+	log.Println("fix img url=", targetUrl)
 	page, _ := strconv.Atoi(values.Get("page"))
 	startIdx := page * 9
 	endIdx := startIdx + 9
