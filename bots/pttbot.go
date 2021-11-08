@@ -158,7 +158,7 @@ func actionHandler(event *linebot.Event, action string, values url.Values) {
 func actinoAddFavorite(event *linebot.Event, action string, values url.Values) {
 	toggleMessage := ""
 	userId := values.Get("user_id")
-	newFavoriteArticle := values.Get("article_id")
+	newFavoriteArticle := values.Get("url")
 	userFavorite := &controllers.UserFavorite{
 		UserId:    userId,
 		Favorites: []string{newFavoriteArticle},
@@ -188,75 +188,74 @@ func actinoAddFavorite(event *linebot.Event, action string, values url.Values) {
 }
 
 func actionShowFavorite(event *linebot.Event, action string, values url.Values) {
-	// columnCount := 9
-	// userId := values.Get("user_id")
-	// userFavorite := &controllers.UserFavorite{
-	// 	UserId:    userId,
-	// 	Favorites: []string{},
-	// }
+	columnCount := 9
+	userId := values.Get("user_id")
+	userFavorite := &controllers.UserFavorite{
+		UserId:    userId,
+		Favorites: []string{},
+	}
 
-	// if currentPage, err := strconv.Atoi(values.Get("page")); err != nil {
-	// 	meta.Log.Println("Unable to parse parameters", values)
-	// } else {
-	// 	userData, _ := userFavorite.Get(meta)
+	if currentPage, err := strconv.Atoi(values.Get("page")); err != nil {
+		meta.Log.Println("Unable to parse parameters", values)
+	} else {
+		userData, _ := userFavorite.Get(meta)
 
-	// 	// reverse slice
-	// 	for i := len(userData.Favorites)/2 - 1; i >= 0; i-- {
-	// 		opp := len(userData.Favorites) - 1 - i
-	// 		userData.Favorites[i], userData.Favorites[opp] = userData.Favorites[opp], userData.Favorites[i]
-	// 	}
+		// 	// reverse slice
+		for i := len(userData.Favorites)/2 - 1; i >= 0; i-- {
+			opp := len(userData.Favorites) - 1 - i
+			userData.Favorites[i], userData.Favorites[opp] = userData.Favorites[opp], userData.Favorites[i]
+		}
 
-	// 	startIdx := currentPage * columnCount
-	// 	endIdx := startIdx + columnCount
-	// 	lastPage := false
-	// 	if endIdx > len(userData.Favorites)-1 || startIdx > endIdx {
-	// 		endIdx = len(userData.Favorites)
-	// 		lastPage = true
-	// 	}
+		startIdx := currentPage * columnCount
+		endIdx := startIdx + columnCount
+		lastPage := false
+		if endIdx > len(userData.Favorites)-1 || startIdx > endIdx {
+			endIdx = len(userData.Favorites)
+			lastPage = true
+		}
 
-	// 	fmt.Println("Start Index", startIdx)
-	// 	fmt.Println("End Index", endIdx)
-	// 	fmt.Println("Total Length", len(userData.Favorites))
+		fmt.Println("Start Index", startIdx)
+		fmt.Println("End Index", endIdx)
+		fmt.Println("Total Length", len(userData.Favorites))
 
-	// 	favDocuments := []models.ArticleDocument{}
-	// 	favs := userData.Favorites[startIdx:endIdx]
-	// 	fmt.Println(favs)
+		favDocuments := []models.ArticleDocument{}
+		favs := userData.Favorites[startIdx:endIdx]
+		fmt.Println(favs)
 
-	// 	for i := startIdx; i < endIdx; i++ {
-	// 		favArticleId := userData.Favorites[i]
-	// 		query := bson.M{"article_id": favArticleId}
-	// 		tmpRecord, _ := controllers.GetOne(meta.Collection, query)
-	// 		favDocuments = append(favDocuments, *tmpRecord)
-	// 	}
+		for i := startIdx; i < endIdx; i++ {
+			url := userData.Favorites[i]
+			tmpRecord, _ := controllers.GetOne(url)
+			favDocuments = append(favDocuments, *tmpRecord)
+		}
 
-	// 	// append next page column
-	// 	previousPage := currentPage - 1
-	// 	if previousPage < 0 {
-	// 		previousPage = 0
-	// 	}
-	// 	nextPage := currentPage + 1
-	// 	previousData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, previousPage, userId)
-	// 	nextData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, nextPage, userId)
-	// 	previousText := fmt.Sprintf("上一頁 %d", previousPage)
-	// 	nextText := fmt.Sprintf("下一頁 %d", nextPage)
-	// 	if lastPage == true {
-	// 		nextData = "--"
-	// 		nextText = "--"
-	// 	}
+		// append next page column
+		previousPage := currentPage - 1
+		if previousPage < 0 {
+			previousPage = 0
+		}
+		nextPage := currentPage + 1
+		previousData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, previousPage, userId)
+		nextData := fmt.Sprintf("action=%s&page=%d&user_id=%s", ActonShowFav, nextPage, userId)
+		previousText := fmt.Sprintf("上一頁 %d", previousPage)
+		nextText := fmt.Sprintf("下一頁 %d", nextPage)
+		if lastPage == true {
+			nextData = "--"
+			nextText = "--"
+		}
 
-	// 	tmpColumn := linebot.NewCarouselColumn(
-	// 		defaultThumbnail,
-	// 		DefaultTitle,
-	// 		"繼續看？",
-	// 		linebot.NewMessageAction(ActionHelp, ActionHelp),
-	// 		linebot.NewPostbackAction(previousText, previousData, "", ""),
-	// 		linebot.NewPostbackAction(nextText, nextData, "", ""),
-	// 	)
+		tmpColumn := linebot.NewCarouselColumn(
+			defaultThumbnail,
+			DefaultTitle,
+			"繼續看？",
+			linebot.NewMessageAction(ActionHelp, ActionHelp),
+			linebot.NewPostbackAction(previousText, previousData, "", ""),
+			linebot.NewPostbackAction(nextText, nextData, "", ""),
+		)
 
-	// 	template := getCarouseTemplate(event.Source.UserID, favDocuments)
-	// 	template.Columns = append(template.Columns, tmpColumn)
-	// 	sendCarouselMessage(event, template, "最愛照片已送達")
-	// }
+		template := getCarouseTemplate(event.Source.UserID, favDocuments)
+		template.Columns = append(template.Columns, tmpColumn)
+		sendCarouselMessage(event, template, "最愛照片已送達")
+	}
 }
 
 func actionGeneral(event *linebot.Event, action string, values url.Values) {
@@ -347,24 +346,24 @@ func getCarouseTemplate(userId string, records []models.ArticleDocument) (templa
 	}
 
 	columnList := []*linebot.CarouselColumn{}
-	// userFavorite := &controllers.UserFavorite{
-	// 	UserId:    userId,
-	// 	Favorites: []string{},
-	// }
-	// userData, _ := userFavorite.Get(meta)
+	userFavorite := &controllers.UserFavorite{
+		UserId:    userId,
+		Favorites: []string{},
+	}
+	userData, _ := userFavorite.Get(meta)
 	favLabel := ""
 
 	for _, result := range records {
-		// if exist, _ := utils.InArray(result.ArticleID, userData.Favorites); exist == true {
-		// 	favLabel = "❤️ 移除最愛"
-		// } else {
-		favLabel = "💛 加入最愛"
-		// }
+		if exist, _ := utils.InArray(result.URL, userData.Favorites); exist == true {
+			favLabel = "❤️ 移除最愛"
+		} else {
+			favLabel = "💛 加入最愛"
+		}
 		thumnailUrl := defaultImage
 		imgUrlCounts := len(result.ImageLinks)
 		lable := fmt.Sprintf("%s (%d)", ActionAllImage, imgUrlCounts)
 		title := result.ArticleTitle
-		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=0&url=%s", ActionAllImage, result.ArticleID, result.URL)
+		postBackData := fmt.Sprintf("action=%s&page=0&url=%s", ActionAllImage, result.URL)
 		text := fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo)
 
 		if imgUrlCounts > 0 {
@@ -382,8 +381,8 @@ func getCarouseTemplate(userId string, records []models.ArticleDocument) (templa
 		//meta.Log.Println("URL = ", result.URL)
 		//meta.Log.Println("===============", idx)
 		//dataRandom := fmt.Sprintf("action=%s", ActionRandom)
-		dataAddFavorite := fmt.Sprintf("action=%s&user_id=%s&article_id=%s",
-			ActionAddFavorite, userId, result.ArticleID)
+		dataAddFavorite := fmt.Sprintf("action=%s&user_id=%s&url=%s",
+			ActionAddFavorite, userId, result.URL)
 		tmpColumn := linebot.NewCarouselColumn(
 			thumnailUrl,
 			title,
@@ -519,7 +518,6 @@ func sendTextMessage(event *linebot.Event, text string) {
 func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (template *linebot.ImageCarouselTemplate) {
 	urls := record.ImageLinks
 	columnList := []*linebot.ImageCarouselColumn{}
-	articleID := values.Get("article_id")
 	targetUrl := values.Get("url")
 	page, _ := strconv.Atoi(values.Get("page"))
 	startIdx := page * 9
@@ -539,7 +537,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 		columnList = append(columnList, tmpColumn)
 	}
 	if lastPage == false {
-		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=%d&url=%s", ActionAllImage, articleID, page+1, targetUrl)
+		postBackData := fmt.Sprintf("action=%s&page=%d&url=%s", ActionAllImage, page+1, targetUrl)
 		tmpColumn := linebot.NewImageCarouselColumn(
 			defaultImage,
 			linebot.NewPostbackAction("下一頁", postBackData, "", ""),
