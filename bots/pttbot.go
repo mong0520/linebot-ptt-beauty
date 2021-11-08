@@ -242,8 +242,8 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			previousPage = 0
 		}
 		nextPage := currentPage + 1
-		previousData := fmt.Sprintf("action=%s&page=%d", ActonShowFav, previousPage)
-		nextData := fmt.Sprintf("action=%s&page=%d", ActonShowFav, nextPage)
+		previousData := fmt.Sprintf("action=%s&page=%d", ActionNewest, previousPage)
+		nextData := fmt.Sprintf("action=%s&page=%d", ActionNewest, nextPage)
 		previousText := fmt.Sprintf("上一頁 %d", previousPage)
 		nextText := fmt.Sprintf("下一頁 %d", nextPage)
 		tmpColumn := linebot.NewCarouselColumn(
