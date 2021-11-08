@@ -5,7 +5,7 @@ go 1.17
 
 require (
 	github.com/go-pg/pg/v10 v10.10.6
-	github.com/kkdai/photomgr v0.4.0
+	github.com/kkdai/photomgr v0.5.0
 	github.com/line/line-bot-sdk-go/v7 v7.11.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )

@@ -19,7 +19,7 @@ github.com/go-pg/zerochecker
 # github.com/jinzhu/inflection v1.0.0
 ## explicit
 github.com/jinzhu/inflection
-# github.com/kkdai/photomgr v0.4.0
+# github.com/kkdai/photomgr v0.5.0
 ## explicit; go 1.15
 github.com/kkdai/photomgr
 # github.com/line/line-bot-sdk-go/v7 v7.11.0

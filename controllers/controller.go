@@ -19,7 +19,12 @@ func GetOne(url string) (result *models.ArticleDocument, err error) {
 	ptt := NewPTT()
 	post := models.ArticleDocument{}
 	post.ArticleID = utils.GetPttIDFromURL(url)
-	post.ImageLinks = ptt.GetAllImageAddress(url)
+	post.ArticleTitle = ptt.GetUrlTitle(url)
+	post.ImageLinks = ptt.GetUrlPhotos(url)
+	like, dis := ptt.GetPostLikeDis(url)
+	post.MessageCount.Push = like
+	post.MessageCount.Boo = dis
+	post.MessageCount.All = like + dis
 	return &post, nil
 }
 
