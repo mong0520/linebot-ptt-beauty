@@ -224,9 +224,8 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 
 		for i := startIdx; i < endIdx; i++ {
 			url := userData.Favorites[i]
-			log.Printf("Favorites[%d] url=%s \n", i, url)
 			tmpRecord, _ := controllers.GetOne(url)
-			log.Printf("Favorites[%d] title=%s image0=%s \n", i, tmpRecord.ArticleTitle, tmpRecord.ImageLinks[0])
+			log.Printf("Favorites[%d] url=%s title=%s \n", i, url, tmpRecord.ArticleTitle)
 			favDocuments = append(favDocuments, *tmpRecord)
 		}
 
