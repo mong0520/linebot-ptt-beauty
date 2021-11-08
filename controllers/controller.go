@@ -27,7 +27,7 @@ func Get(page int, perPage int) (results []models.ArticleDocument, err error) {
 	var ret []models.ArticleDocument
 	ptt := NewPTT()
 	count := ptt.ParsePttPageByIndex(page, true)
-	for i := 0; i < count; i++ {
+	for i := 0; i < count && i < perPage; i++ {
 		title := ptt.GetPostTitleByIndex(i)
 		if utils.CheckTitleWithBeauty(title) {
 			post := models.ArticleDocument{}
