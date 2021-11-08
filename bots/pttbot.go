@@ -158,7 +158,7 @@ func actionHandler(event *linebot.Event, action string, values url.Values) {
 func actinoAddFavorite(event *linebot.Event, action string, values url.Values) {
 	toggleMessage := ""
 	userId := values.Get("user_id")
-	newFavoriteArticle := values.Get("article_id")
+	newFavoriteArticle := values.Get("url")
 	userFavorite := &controllers.UserFavorite{
 		UserId:    userId,
 		Favorites: []string{newFavoriteArticle},
@@ -347,24 +347,24 @@ func getCarouseTemplate(userId string, records []models.ArticleDocument) (templa
 	}
 
 	columnList := []*linebot.CarouselColumn{}
-	// userFavorite := &controllers.UserFavorite{
-	// 	UserId:    userId,
-	// 	Favorites: []string{},
-	// }
-	// userData, _ := userFavorite.Get(meta)
+	userFavorite := &controllers.UserFavorite{
+		UserId:    userId,
+		Favorites: []string{},
+	}
+	userData, _ := userFavorite.Get(meta)
 	favLabel := ""
 
 	for _, result := range records {
-		// if exist, _ := utils.InArray(result.ArticleID, userData.Favorites); exist == true {
-		// 	favLabel = "❤️ 移除最愛"
-		// } else {
-		favLabel = "💛 加入最愛"
-		// }
+		if exist, _ := utils.InArray(result.URL, userData.Favorites); exist == true {
+			favLabel = "❤️ 移除最愛"
+		} else {
+			favLabel = "💛 加入最愛"
+		}
 		thumnailUrl := defaultImage
 		imgUrlCounts := len(result.ImageLinks)
 		lable := fmt.Sprintf("%s (%d)", ActionAllImage, imgUrlCounts)
 		title := result.ArticleTitle
-		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=0&url=%s", ActionAllImage, result.ArticleID, result.URL)
+		postBackData := fmt.Sprintf("action=%s&page=0&url=%s", ActionAllImage, result.URL)
 		text := fmt.Sprintf("%d 😍\t%d 😡", result.MessageCount.Push, result.MessageCount.Boo)
 
 		if imgUrlCounts > 0 {
@@ -382,8 +382,8 @@ func getCarouseTemplate(userId string, records []models.ArticleDocument) (templa
 		//meta.Log.Println("URL = ", result.URL)
 		//meta.Log.Println("===============", idx)
 		//dataRandom := fmt.Sprintf("action=%s", ActionRandom)
-		dataAddFavorite := fmt.Sprintf("action=%s&user_id=%s&article_id=%s",
-			ActionAddFavorite, userId, result.ArticleID)
+		dataAddFavorite := fmt.Sprintf("action=%s&user_id=%s&url=%s",
+			ActionAddFavorite, userId, result.URL)
 		tmpColumn := linebot.NewCarouselColumn(
 			thumnailUrl,
 			title,
@@ -519,7 +519,6 @@ func sendTextMessage(event *linebot.Event, text string) {
 func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (template *linebot.ImageCarouselTemplate) {
 	urls := record.ImageLinks
 	columnList := []*linebot.ImageCarouselColumn{}
-	articleID := values.Get("article_id")
 	targetUrl := values.Get("url")
 	page, _ := strconv.Atoi(values.Get("page"))
 	startIdx := page * 9
@@ -539,7 +538,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 		columnList = append(columnList, tmpColumn)
 	}
 	if lastPage == false {
-		postBackData := fmt.Sprintf("action=%s&article_id=%s&page=%d&url=%s", ActionAllImage, articleID, page+1, targetUrl)
+		postBackData := fmt.Sprintf("action=%s&page=%d&url=%s", ActionAllImage, page+1, targetUrl)
 		tmpColumn := linebot.NewImageCarouselColumn(
 			defaultImage,
 			linebot.NewPostbackAction("下一頁", postBackData, "", ""),
