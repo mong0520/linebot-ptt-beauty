@@ -118,6 +118,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 					rxRelaxed := xurls.Relaxed()
 					values.Set("url", rxRelaxed.FindString(message.Text))
 					actinoAddFavorite(event, "", values)
+					return
 				}
 
 				meta.Log.Println("Text = ", message.Text)
