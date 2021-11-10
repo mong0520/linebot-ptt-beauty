@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 
+	"mvdan.cc/xurls/v2"
+
 	"github.com/kkdai/linebot-ptt-beauty/controllers"
 	"github.com/kkdai/linebot-ptt-beauty/models"
 	"github.com/kkdai/linebot-ptt-beauty/utils"
@@ -110,6 +112,14 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 					sendTextMessage(event, "Already show all user DB OP.")
 					return
 				}
+				if strings.Contains(message.Text, "www.ptt.cc/bbs/Beauty") {
+					values := url.Values{}
+					values.Set("user_id", event.Source.UserID)
+					rxRelaxed := xurls.Relaxed()
+					values.Set("url", rxRelaxed.FindString(message.Text))
+					actinoAddFavorite(event, "", values)
+				}
+
 				meta.Log.Println("Text = ", message.Text)
 				textHander(event, message.Text)
 			default:

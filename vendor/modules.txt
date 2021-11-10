@@ -65,3 +65,6 @@ gopkg.in/mgo.v2/internal/scram
 # mellium.im/sasl v0.2.1
 ## explicit
 mellium.im/sasl
+# mvdan.cc/xurls/v2 v2.3.0
+## explicit; go 1.15
+mvdan.cc/xurls/v2
