@@ -140,26 +140,6 @@ func (u *UserFavorite) Update(meta *models.Model) (err error) {
 	return nil
 }
 
-func (u *UserFavorite) CleanDB(meta *models.Model) (err error) {
-	log.Println("***Clean all User=")
-	_, err = meta.Db.Model(u).
-		Where("user_id = ?", u.UserId).
-		Delete()
-	if err != nil {
-		meta.Log.Println(err)
-	}
-
-	//Check all users again
-	users := []UserFavorite{}
-	err = meta.Db.Model(&users).Select()
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println("***Check all users again =", users)
-
-	return nil
-}
-
 func (u *UserFavorite) ShowAll(meta *models.Model) (err error) {
 	log.Println("***ShowAll  User -->")
 	users := []UserFavorite{}

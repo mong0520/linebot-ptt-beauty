@@ -2,12 +2,10 @@ package bots
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 
@@ -41,7 +39,6 @@ const (
 	ActionHelp        string = "表特選單"
 	ActionAllImage    string = "👁️ 預覽圖片"
 	ActonShowFav      string = "❤️ 我的最愛"
-	ActonRunCC        string = "/cc"
 	ModeHTTP          string = "http"
 	ModeHTTPS         string = "https"
 	AltText           string = "正妹只在手機上"
@@ -103,16 +100,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				if message.Text == "cleandb" {
-					log.Println("get clean db OP--->")
-					userFavorite := &controllers.UserFavorite{
-						UserId:    event.Source.UserID,
-						Favorites: []string{},
-					}
-					userFavorite.CleanDB(meta)
-					sendTextMessage(event, "Already clean all DB.")
-					return
-				} else if message.Text == "showall" {
+				if message.Text == "showall" {
 					log.Println("get show all user OP--->")
 					userFavorite := &controllers.UserFavorite{
 						UserId:    event.Source.UserID,
@@ -451,37 +439,19 @@ func textHander(event *linebot.Event, message string) {
 		values.Set("page", "0")
 		actionShowFavorite(event, "", values)
 	default:
-		if strings.HasPrefix(message, ActonRunCC) {
-			commands := strings.Split(message, " ")
-			action := commands[1]
-			cmd := exec.Command("./run_cc.sh", action)
-			stdout, err := cmd.StdoutPipe()
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer stdout.Close()
-			if err := cmd.Start(); err != nil {
-				log.Fatal(err)
-			}
-			// 读取输出结果
-			opBytes, err := ioutil.ReadAll(stdout)
-			if err != nil {
-				log.Fatal(err)
-			}
-			log.Println(string(opBytes))
-			sendTextMessage(event, string(opBytes))
-			return
-		}
+		meta.Log.Println("Unknow action")
+		sendTextMessage(event, "Unknow action")
+		return
+	}
 
-		if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == "" {
-			records, _ := controllers.GetRandom(maxCountOfCarousel, message)
-			if records != nil && len(records) > 0 {
-				template := getCarouseTemplate(event.Source.UserID, records)
-				sendCarouselMessage(event, template, "隨機表特已送到囉")
-			} else {
-				template := getMenuButtonTemplateV2(event, DefaultTitle)
-				sendCarouselMessage(event, template, "我能為您做什麼？")
-			}
+	if event.Source.UserID != "" && event.Source.GroupID == "" && event.Source.RoomID == "" {
+		records, _ := controllers.GetRandom(maxCountOfCarousel, message)
+		if len(records) > 0 {
+			template := getCarouseTemplate(event.Source.UserID, records)
+			sendCarouselMessage(event, template, "隨機表特已送到囉")
+		} else {
+			template := getMenuButtonTemplateV2(event, DefaultTitle)
+			sendCarouselMessage(event, template, "我能為您做什麼？")
 		}
 	}
 }
