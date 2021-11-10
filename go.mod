@@ -8,6 +8,7 @@ require (
 	github.com/kkdai/photomgr v0.5.0
 	github.com/line/line-bot-sdk-go/v7 v7.11.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
+	mvdan.cc/xurls/v2 v2.3.0
 )
 
 require (
