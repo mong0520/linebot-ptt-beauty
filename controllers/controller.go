@@ -98,7 +98,7 @@ func GetMostLike(count int, timestampOffset int) (results []models.ArticleDocume
 	// }
 
 	ptt := NewPTT()
-	pCount := ptt.ParsePttByNumber(count, 0)
+	pCount := ptt.ParsePttByNumber(20, 0)
 	if pCount == 0 {
 		return nil, errors.New("NotFound")
 	}
@@ -124,7 +124,7 @@ func GetMostLike(count int, timestampOffset int) (results []models.ArticleDocume
 	// for i := 0; i < count; i++ {
 	// 	log.Printf("%d  stars=%d  title=%s\n", i, ret[i].MessageCount.Count, ret[i].ArticleTitle)
 	// }
-	return ret, nil
+	return ret[0:count], nil
 }
 
 func (u *UserFavorite) Add(meta *models.Model) {
