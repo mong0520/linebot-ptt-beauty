@@ -26,6 +26,7 @@ func GetOne(url string) (result *models.ArticleDocument, err error) {
 	post.MessageCount.Push = like
 	post.MessageCount.Boo = dis
 	post.MessageCount.All = like + dis
+	post.MessageCount.Count = like - dis
 	return &post, nil
 }
 
@@ -46,6 +47,7 @@ func Get(page int, perPage int) (results []models.ArticleDocument, err error) {
 			post.MessageCount.Push = like
 			post.MessageCount.Boo = dis
 			post.MessageCount.All = like + dis
+			post.MessageCount.Count = like - dis
 			ret = append(ret, post)
 		}
 		// log.Printf("Get article: %s utl= %s obj=%x \n", m.ArticleTitle, m.URL, m)
@@ -75,6 +77,7 @@ func GetRandom(count int, keyword string) (results []models.ArticleDocument, err
 			post.MessageCount.Push = like
 			post.MessageCount.Boo = dis
 			post.MessageCount.All = like + dis
+			post.MessageCount.Count = like - dis
 			ret = append(ret, post)
 			log.Printf("%d th rand =%d title=%s url=%s images(1)=%s \n", i, rands[i], title, url, post.ImageLinks[0])
 		}
