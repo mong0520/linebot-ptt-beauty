@@ -74,3 +74,10 @@ func (d *ArticleDocument) ToString() (info string) {
 	}
 	return string(b)
 }
+
+// ArticleDocument for sorting.
+type AllArticles []ArticleDocument
+
+func (a AllArticles) Len() int           { return len(a) }
+func (a AllArticles) Less(i, j int) bool { return a[i].MessageCount.Count > a[j].MessageCount.Count }
+func (a AllArticles) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
