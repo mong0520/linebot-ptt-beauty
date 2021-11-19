@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"log"
+	"sort"
 
 	"github.com/kkdai/linebot-ptt-beauty/models"
 	"github.com/kkdai/linebot-ptt-beauty/utils"
@@ -43,11 +44,7 @@ func Get(page int, perPage int) (results []models.ArticleDocument, err error) {
 			post.URL = url
 			post.ArticleID = utils.GetPttIDFromURL(url)
 			post.ImageLinks = ptt.GetAllImageAddress(url)
-			like, dis := ptt.GetPostLikeDis(url)
-			post.MessageCount.Push = like
-			post.MessageCount.Boo = dis
-			post.MessageCount.All = like + dis
-			post.MessageCount.Count = like - dis
+			post.MessageCount.Count = ptt.GetPostStarByIndex(i)
 			ret = append(ret, post)
 		}
 		// log.Printf("Get article: %s utl= %s obj=%x \n", m.ArticleTitle, m.URL, m)
@@ -73,24 +70,15 @@ func GetRandom(count int, keyword string) (results []models.ArticleDocument, err
 			post.URL = url
 			post.ArticleID = utils.GetPttIDFromURL(url)
 			post.ImageLinks = ptt.GetAllImageAddress(url)
-			like, dis := ptt.GetPostLikeDis(url)
-			post.MessageCount.Push = like
-			post.MessageCount.Boo = dis
-			post.MessageCount.All = like + dis
-			post.MessageCount.Count = like - dis
+			post.MessageCount.Count = ptt.GetPostStarByIndex(i)
 			ret = append(ret, post)
-			log.Printf("%d th rand =%d title=%s url=%s images(1)=%s \n", i, rands[i], title, url, post.ImageLinks[0])
+			// log.Printf("%d th rand =%d title=%s url=%s images(1)=%s \n", i, rands[i], title, url, post.ImageLinks[0])
 		}
 	}
 	return ret, nil
 }
 
 func GetMostLike(count int, timestampOffset int) (results []models.ArticleDocument, err error) {
-	// document := &models.ArticleDocument{}
-	// //query := bson.M{"message_count.all": bson.M{"$gt": like}, "ArticleTitle": "/正妹/"}
-	// //query := bson.M{"ArticleTitle": bson.RegEx{"*", ""}}
-	// //query := bson.M{"ArticleTitle": bson.RegEx{".+", ""}}
-	// query := bson.M{}
 	// if timestampOffset > 0 {
 	// 	now := time.Now()
 	// 	nowInSec := int(now.Unix())
@@ -100,13 +88,33 @@ func GetMostLike(count int, timestampOffset int) (results []models.ArticleDocume
 	// } else {
 	// 	query = bson.M{"article_title": bson.M{"$regex": bson.RegEx{"^\\[正妹\\].*", ""}}}
 	// }
-	// results, err = document.GeneralQueryAll(collection, query, "-message_count.push", count)
-	// if err != nil {
-	// 	//fmt.Println(err)
-	// 	return nil, err
-	// } else {
-	return results, nil
+
+	ptt := NewPTT()
+	pCount := ptt.ParsePttByNumber(count, 0)
+	if pCount == 0 {
+		return nil, errors.New("NotFound")
+	}
+
+	var ret []models.ArticleDocument
+	for i := 0; i < pCount; i++ {
+		title := ptt.GetPostTitleByIndex(i)
+		if utils.CheckTitleWithBeauty(title) {
+			post := models.ArticleDocument{}
+			url := ptt.GetPostUrlByIndex(i)
+			post.MessageCount.Count = ptt.GetPostStarByIndex(i)
+			post.ArticleTitle = title
+			post.URL = url
+			post.ArticleID = utils.GetPttIDFromURL(url)
+			post.ImageLinks = ptt.GetAllImageAddress(url)
+			ret = append(ret, post)
+			// log.Printf("%d  stars=%d  title=%s\n", i, post.MessageCount.Count, title)
+		}
+	}
+	sort.Sort(models.AllArticles(ret))
+	// for i := 0; i < count; i++ {
+	// 	log.Printf("%d  stars=%d  title=%s\n", i, ret[i].MessageCount.Count, ret[i].ArticleTitle)
 	// }
+	return ret, nil
 }
 
 func (u *UserFavorite) Add(meta *models.Model) {
