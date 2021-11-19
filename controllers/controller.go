@@ -96,19 +96,17 @@ func GetMostLike(count int, timestampOffset int) (results []models.ArticleDocume
 	}
 
 	var ret []models.ArticleDocument
-	for i := 0; i < pCount; i++ {
+	for i := 0; i < count && i < pCount; i++ {
 		title := ptt.GetPostTitleByIndex(i)
-		if utils.CheckTitleWithBeauty(title) {
-			post := models.ArticleDocument{}
-			url := ptt.GetPostUrlByIndex(i)
-			post.MessageCount.Count = ptt.GetPostStarByIndex(i)
-			post.ArticleTitle = title
-			post.URL = url
-			post.ArticleID = utils.GetPttIDFromURL(url)
-			post.ImageLinks = ptt.GetAllImageAddress(url)
-			ret = append(ret, post)
-			// log.Printf("%d  stars=%d  title=%s\n", i, post.MessageCount.Count, title)
-		}
+		post := models.ArticleDocument{}
+		url := ptt.GetPostUrlByIndex(i)
+		post.MessageCount.Count = ptt.GetPostStarByIndex(i)
+		post.ArticleTitle = title
+		post.URL = url
+		post.ArticleID = utils.GetPttIDFromURL(url)
+		post.ImageLinks = ptt.GetAllImageAddress(url)
+		ret = append(ret, post)
+		// log.Printf("%d  stars=%d  title=%s\n", i, post.MessageCount.Count, title)
 	}
 	sort.Sort(models.AllArticles(ret))
 	// for i := 0; i < count; i++ {

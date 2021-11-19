@@ -1,6 +1,8 @@
 package controllers
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGet(t *testing.T) {
 	if ret, err := Get(3, 5); nil != err {
@@ -13,11 +15,11 @@ func TestGet(t *testing.T) {
 }
 
 func TestGetMostLike(t *testing.T) {
-	if ret, err := GetMostLike(30, 5); nil != err {
+	if ret, err := GetMostLike(5, 5); nil != err {
 		t.Error(err)
 	} else {
-		if len(ret) < 30 {
-			t.Error("Can not get enough result")
+		if len(ret) != 5 {
+			t.Error("Can not get enough result:", len(ret))
 		}
 		for k, v := range ret {
 			if k == 0 {
