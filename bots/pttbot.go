@@ -28,6 +28,7 @@ var oneMonthInSec = oneDayInSec * 30
 var oneYearInSec = oneMonthInSec * 365
 
 const (
+	//DefaultTitle : for caresoul title.
 	DefaultTitle string = "💋表特看看"
 
 	ActionQuery       string = "一般查詢"
@@ -46,6 +47,7 @@ const (
 	AltText           string = "正妹只在手機上"
 )
 
+// InitLineBot: init LINE bot
 func InitLineBot(m *models.Model, runMode string, sslCertPath string, sslPKeyPath string) {
 
 	var err error
