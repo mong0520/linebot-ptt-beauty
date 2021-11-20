@@ -278,7 +278,7 @@ func actionRandom(event *linebot.Event, values url.Values) {
 
 func actionGeneral(event *linebot.Event, values url.Values) {
 	tsOffset, _ := strconv.Atoi(values.Get("period"))
-	records, _ := controllers.GetMostLike(maxCountOfCarousel, tsOffset)
+	records, _ := controllers.GetMostLike(20, maxCountOfCarousel, tsOffset)
 	label := "已幫您查詢到一些照片~"
 
 	template := getCarouseTemplate(event.Source.UserID, records)
