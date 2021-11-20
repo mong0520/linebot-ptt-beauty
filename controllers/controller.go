@@ -94,7 +94,7 @@ func GetMostLike(total int, limit int) (results []models.ArticleDocument, err er
 	}
 
 	var ret []models.ArticleDocument
-	for i := 0; i < limit && i < pCount; i++ {
+	for i := 0; i < pCount; i++ {
 		title := ptt.GetPostTitleByIndex(i)
 		post := models.ArticleDocument{}
 		url := ptt.GetPostUrlByIndex(i)
