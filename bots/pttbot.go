@@ -252,10 +252,6 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			linebot.NewPostbackAction(nextText, nextData, "", ""),
 		)
 
-		for k, v := range favDocuments {
-			log.Println("Fav k=", k, "v=", v)
-		}
-
 		template := getCarouseTemplate(event.Source.UserID, favDocuments)
 		template.Columns = append(template.Columns, tmpColumn)
 		sendCarouselMessage(event, template, "最愛照片已送達")
