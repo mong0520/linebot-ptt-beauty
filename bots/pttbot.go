@@ -29,9 +29,9 @@ const (
 
 	ActionQuery       string = "一般查詢"
 	ActionNewest      string = "🎊 最新表特"
-	ActionDailyHot    string = "📈 本日熱門"
-	ActionMonthlyHot  string = "🔥 本週熱門"
-	ActionYearHot     string = "🏆 本月熱門"
+	ActionDailyHot    string = "📈 20篇內熱門"
+	ActionMonthlyHot  string = "🔥 60篇內門"
+	ActionYearHot     string = "🏆 100篇內熱門"
 	ActionRandom      string = "👩 隨機十連抽"
 	ActionAddFavorite string = "加入最愛"
 	ActionClick       string = "👉 點我打開"
@@ -474,9 +474,9 @@ func getMenuButtonTemplateV2(event *linebot.Event, title string) (template *line
 		defaultThumbnail,
 		title,
 		"你可以試試看以下選項，或直接輸入關鍵字查詢",
-		linebot.NewPostbackAction(ActionDailyHot, dataQuery+"&period=15", "", ""),
-		linebot.NewPostbackAction(ActionMonthlyHot, dataQuery+"&period=105", "", ""),
-		linebot.NewPostbackAction(ActionYearHot, dataQuery+"&period=300", "", ""),
+		linebot.NewPostbackAction(ActionDailyHot, dataQuery+"&period=20", "", ""),
+		linebot.NewPostbackAction(ActionMonthlyHot, dataQuery+"&period=60", "", ""),
+		linebot.NewPostbackAction(ActionYearHot, dataQuery+"&period=100", "", ""),
 	)
 	columnList = append(columnList, menu1, menu2)
 	template = linebot.NewCarouselTemplate(columnList...)
