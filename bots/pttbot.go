@@ -145,8 +145,10 @@ func actionHandler(event *linebot.Event, action string, values url.Values) {
 		actionNewest(event, values)
 	case ActionAllImage:
 		actionAllImage(event, values)
-	case ActionQuery, ActionRandom:
-		actionGeneral(event, action, values)
+	case ActionQuery:
+		actionGeneral(event, values)
+	case ActionRandom:
+		actionRandom(event, values)
 	case ActionAddFavorite:
 		actinoAddFavorite(event, action, values)
 	case ActonShowFav:
@@ -264,30 +266,25 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 	}
 }
 
-func actionGeneral(event *linebot.Event, action string, values url.Values) {
-	meta.Log.Println("Enter actionGeneral, action = ", action)
-	meta.Log.Println("Enter actionGeneral, values = ", values)
-	records := []models.ArticleDocument{}
-	label := ""
-	switch action {
-	case ActionQuery:
-		//meta.Log.Println(values.Get("period"))
-		tsOffset, _ := strconv.Atoi(values.Get("period"))
-		meta.Log.Println("timestampe off set = ", tsOffset)
-		records, _ = controllers.GetMostLike(maxCountOfCarousel, tsOffset)
-		meta.Log.Println("total most like result:", len(records))
-		label = "已幫您查詢到一些照片~"
-	case ActionRandom:
-		records, _ = controllers.GetRandom(maxCountOfCarousel, "")
-		label = "隨機表特已送到囉"
-	default:
-		return
-	}
+func actionRandom(event *linebot.Event, values url.Values) {
+	var label string
+	records, _ := controllers.GetRandom(maxCountOfCarousel, "")
+	label = "隨機表特已送到囉"
 	template := getCarouseTemplate(event.Source.UserID, records)
 	if template != nil {
 		sendCarouselMessage(event, template, label)
 	}
+}
 
+func actionGeneral(event *linebot.Event, values url.Values) {
+	tsOffset, _ := strconv.Atoi(values.Get("period"))
+	records, _ := controllers.GetMostLike(maxCountOfCarousel, tsOffset)
+	label := "已幫您查詢到一些照片~"
+
+	template := getCarouseTemplate(event.Source.UserID, records)
+	if template != nil {
+		sendCarouselMessage(event, template, label)
+	}
 }
 
 func actionAllImage(event *linebot.Event, values url.Values) {
