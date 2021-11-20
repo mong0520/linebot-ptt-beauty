@@ -86,7 +86,7 @@ func GetRandom(count int, keyword string) (results []models.ArticleDocument, err
 	return ret, nil
 }
 
-func GetMostLike(total int, count int, timestampOffset int) (results []models.ArticleDocument, err error) {
+func GetMostLike(total int, count int) (results []models.ArticleDocument, err error) {
 	// if timestampOffset > 0 {
 	// 	now := time.Now()
 	// 	nowInSec := int(now.Unix())
