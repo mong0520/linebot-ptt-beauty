@@ -22,10 +22,6 @@ var meta *models.Model
 var maxCountOfCarousel = 10
 var defaultImage = "https://i.imgur.com/WAnWk7K.png"
 var defaultThumbnail = "https://i.imgur.com/StcRAPB.png"
-var oneDayInSec = 60 * 60 * 24
-var oneWeekInSec = oneDayInSec * 7
-var oneMonthInSec = oneDayInSec * 30
-var oneYearInSec = oneMonthInSec * 365
 
 const (
 	//DefaultTitle : for caresoul title.
@@ -34,8 +30,8 @@ const (
 	ActionQuery       string = "一般查詢"
 	ActionNewest      string = "🎊 最新表特"
 	ActionDailyHot    string = "📈 本日熱門"
-	ActionMonthlyHot  string = "🔥 近期熱門"
-	ActionYearHot     string = "🏆 年度熱門"
+	ActionMonthlyHot  string = "🔥 本週熱門"
+	ActionYearHot     string = "🏆 本月熱門"
 	ActionRandom      string = "👩 隨機十連抽"
 	ActionAddFavorite string = "加入最愛"
 	ActionClick       string = "👉 點我打開"
@@ -277,20 +273,8 @@ func actionRandom(event *linebot.Event, values url.Values) {
 }
 
 func actionMostLike(event *linebot.Event, action string, values url.Values) {
-	period := 0
-	switch action {
-	case ActionDailyHot:
-		period = 20
-	case ActionMonthlyHot:
-		period = 50
-	case ActionYearHot:
-		period = 100
-	default:
-		period = 20
-	}
-
-	tsOffset, _ := strconv.Atoi(values.Get("period"))
-	records, _ := controllers.GetMostLike(period, maxCountOfCarousel, tsOffset)
+	period, _ := strconv.Atoi(values.Get("period"))
+	records, _ := controllers.GetMostLike(period, maxCountOfCarousel)
 	label := "已幫您查詢到一些照片~"
 
 	template := getCarouseTemplate(event.Source.UserID, records)
@@ -321,9 +305,6 @@ func actionNewest(event *linebot.Event, values url.Values) {
 			records, _ = controllers.Get(currentPage, columnCount)
 		}
 
-		for idx, record := range records {
-			meta.Log.Printf("ID: %d, Date: %s, Title: %s", idx, record.Date, record.ArticleTitle)
-		}
 		template := getCarouseTemplate(event.Source.UserID, records)
 
 		if template == nil {
@@ -453,7 +434,6 @@ func textHander(event *linebot.Event, message string) {
 		sendCarouselMessage(event, template, "隨機表特已送到囉")
 	case ActionNewest:
 		values := url.Values{}
-		values.Set("period", fmt.Sprintf("%d", oneDayInSec))
 		values.Set("page", "0")
 		actionNewest(event, values)
 	case ActonShowFav:
@@ -498,9 +478,9 @@ func getMenuButtonTemplateV2(event *linebot.Event, title string) (template *line
 		defaultThumbnail,
 		title,
 		"你可以試試看以下選項，或直接輸入關鍵字查詢",
-		linebot.NewPostbackAction(ActionDailyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneDayInSec), "", ""),
-		linebot.NewPostbackAction(ActionMonthlyHot, dataQuery+"&period="+fmt.Sprintf("%d", oneWeekInSec), "", ""),
-		linebot.NewPostbackAction(ActionYearHot, dataQuery+"&period="+fmt.Sprintf("%d", oneYearInSec), "", ""),
+		linebot.NewPostbackAction(ActionDailyHot, dataQuery+"&period=15", "", ""),
+		linebot.NewPostbackAction(ActionMonthlyHot, dataQuery+"&period=105", "", ""),
+		linebot.NewPostbackAction(ActionYearHot, dataQuery+"&period=300", "", ""),
 	)
 	columnList = append(columnList, menu1, menu2)
 	template = linebot.NewCarouselTemplate(columnList...)
