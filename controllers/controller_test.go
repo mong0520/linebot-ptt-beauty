@@ -15,7 +15,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestGetMostLike(t *testing.T) {
-	if ret, err := GetMostLike(5, 5); nil != err {
+	if ret, err := GetMostLike(6, 5, 5); nil != err {
 		t.Error(err)
 	} else {
 		if len(ret) != 5 {
