@@ -101,13 +101,23 @@ func GetMostLike(total int, limit int) (results []models.ArticleDocument, err er
 		post.ArticleTitle = title
 		post.URL = url
 		post.ArticleID = utils.GetPttIDFromURL(url)
-		_, post.ImageLinks, post.MessageCount.Push, post.MessageCount.Boo = ptt.GetAllFromURL(url)
-		post.MessageCount.All = post.MessageCount.Push + post.MessageCount.Boo
 		post.MessageCount.Count = ptt.GetPostStarByIndex(i)
 		ret = append(ret, post)
 	}
+	//Sort it.
 	sort.Sort(models.AllArticles(ret))
-	return ret[0:limit], nil
+
+	//Get the first limit (10)
+	ret = ret[0:limit]
+
+	//Add each images and like/dis to top 10.
+	for k, _ := range ret {
+		url := ret[k].URL
+		_, ret[k].ImageLinks, ret[k].MessageCount.Push, ret[k].MessageCount.Boo = ptt.GetAllFromURL(url)
+		ret[k].MessageCount.All = ret[k].MessageCount.Push + ret[k].MessageCount.Boo
+	}
+
+	return ret, nil
 }
 
 func (u *UserFavorite) Add(meta *models.Model) {
