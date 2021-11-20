@@ -145,8 +145,8 @@ func actionHandler(event *linebot.Event, action string, values url.Values) {
 		actionNewest(event, values)
 	case ActionAllImage:
 		actionAllImage(event, values)
-	case ActionQuery:
-		actionGeneral(event, values)
+	case ActionQuery, ActionDailyHot, ActionMonthlyHot, ActionYearHot:
+		actionMostLike(event, action, values)
 	case ActionRandom:
 		actionRandom(event, values)
 	case ActionAddFavorite:
@@ -276,9 +276,21 @@ func actionRandom(event *linebot.Event, values url.Values) {
 	}
 }
 
-func actionGeneral(event *linebot.Event, values url.Values) {
+func actionMostLike(event *linebot.Event, action string, values url.Values) {
+	period := 0
+	switch action {
+	case ActionDailyHot:
+		period = 20
+	case ActionMonthlyHot:
+		period = 50
+	case ActionYearHot:
+		period = 100
+	default:
+		period = 20
+	}
+
 	tsOffset, _ := strconv.Atoi(values.Get("period"))
-	records, _ := controllers.GetMostLike(20, maxCountOfCarousel, tsOffset)
+	records, _ := controllers.GetMostLike(period, maxCountOfCarousel, tsOffset)
 	label := "已幫您查詢到一些照片~"
 
 	template := getCarouseTemplate(event.Source.UserID, records)
