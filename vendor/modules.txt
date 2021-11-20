@@ -19,7 +19,7 @@ github.com/go-pg/zerochecker
 # github.com/jinzhu/inflection v1.0.0
 ## explicit
 github.com/jinzhu/inflection
-# github.com/kkdai/photomgr v0.5.0
+# github.com/kkdai/photomgr v0.6.0
 ## explicit; go 1.15
 github.com/kkdai/photomgr
 # github.com/line/line-bot-sdk-go/v7 v7.11.0
@@ -48,7 +48,7 @@ github.com/vmihailenco/tagparser/v2/internal/parser
 # golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 ## explicit; go 1.17
 golang.org/x/crypto/pbkdf2
-# golang.org/x/net v0.0.0-20211105192438-b53810dc28af
+# golang.org/x/net v0.0.0-20211118161319-6a13c67c3ce4
 ## explicit; go 1.17
 golang.org/x/net/html
 golang.org/x/net/html/atom

@@ -515,7 +515,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 		)
 		columnList = append(columnList, tmpColumn)
 	}
-	if lastPage == false {
+	if !lastPage {
 		postBackData := fmt.Sprintf("action=%s&page=%d&url=%s", ActionAllImage, page+1, targetUrl)
 		tmpColumn := linebot.NewImageCarouselColumn(
 			defaultImage,
