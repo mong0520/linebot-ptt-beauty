@@ -48,7 +48,6 @@ func Get(page int, perPage int) (results []models.ArticleDocument, err error) {
 			post.MessageCount.Count = ptt.GetPostStarByIndex(i)
 			ret = append(ret, post)
 		}
-		// log.Printf("Get article: %s utl= %s obj=%x \n", m.ArticleTitle, m.URL, m)
 	}
 
 	return ret, nil
@@ -64,23 +63,20 @@ func GetRandom(count int, keyword string) (results []models.ArticleDocument, err
 	var ret []models.ArticleDocument
 	for i := 0; i < count; i++ {
 		title := ptt.GetPostTitleByIndex(rands[i])
-		if utils.CheckTitleWithBeauty(title) {
-			post := models.ArticleDocument{}
-			url := ptt.GetPostUrlByIndex(rands[i])
-			post.ArticleTitle = title
-			post.URL = url
-			post.ArticleID = utils.GetPttIDFromURL(url)
-			_, post.ImageLinks, post.MessageCount.Push, post.MessageCount.Boo = ptt.GetAllFromURL(url)
-			post.MessageCount.All = post.MessageCount.Push + post.MessageCount.Boo
-			post.MessageCount.Count = ptt.GetPostStarByIndex(i)
-			ret = append(ret, post)
-			// log.Printf("%d th rand =%d title=%s url=%s images(1)=%s \n", i, rands[i], title, url, post.ImageLinks[0])
-		}
+		post := models.ArticleDocument{}
+		url := ptt.GetPostUrlByIndex(rands[i])
+		post.ArticleTitle = title
+		post.URL = url
+		post.ArticleID = utils.GetPttIDFromURL(url)
+		_, post.ImageLinks, post.MessageCount.Push, post.MessageCount.Boo = ptt.GetAllFromURL(url)
+		post.MessageCount.All = post.MessageCount.Push + post.MessageCount.Boo
+		post.MessageCount.Count = ptt.GetPostStarByIndex(i)
+		ret = append(ret, post)
 	}
 	return ret, nil
 }
 
-func GetMostLike(total int, count int) (results []models.ArticleDocument, err error) {
+func GetMostLike(total int, limit int) (results []models.ArticleDocument, err error) {
 	// if timestampOffset > 0 {
 	// 	now := time.Now()
 	// 	nowInSec := int(now.Unix())
@@ -92,13 +88,13 @@ func GetMostLike(total int, count int) (results []models.ArticleDocument, err er
 	// }
 
 	ptt := NewPTT()
-	pCount := ptt.ParsePttByNumber(20, 0)
+	pCount := ptt.ParsePttByNumber(total, 0)
 	if pCount == 0 {
 		return nil, errors.New("NotFound")
 	}
 
 	var ret []models.ArticleDocument
-	for i := 0; i < count && i < pCount; i++ {
+	for i := 0; i < limit && i < pCount; i++ {
 		title := ptt.GetPostTitleByIndex(i)
 		post := models.ArticleDocument{}
 		url := ptt.GetPostUrlByIndex(i)
@@ -109,13 +105,9 @@ func GetMostLike(total int, count int) (results []models.ArticleDocument, err er
 		post.MessageCount.All = post.MessageCount.Push + post.MessageCount.Boo
 		post.MessageCount.Count = ptt.GetPostStarByIndex(i)
 		ret = append(ret, post)
-		// log.Printf("%d  stars=%d  title=%s\n", i, post.MessageCount.Count, title)
 	}
 	sort.Sort(models.AllArticles(ret))
-	// for i := 0; i < count; i++ {
-	// 	log.Printf("%d  stars=%d  title=%s\n", i, ret[i].MessageCount.Count, ret[i].ArticleTitle)
-	// }
-	return ret[0:count], nil
+	return ret[0:limit], nil
 }
 
 func (u *UserFavorite) Add(meta *models.Model) {
