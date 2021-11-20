@@ -30,7 +30,7 @@ const (
 	ActionQuery       string = "一般查詢"
 	ActionNewest      string = "🎊 最新表特"
 	ActionDailyHot    string = "📈 20篇內熱門"
-	ActionMonthlyHot  string = "🔥 60篇內門"
+	ActionMonthlyHot  string = "🔥 60篇內熱門"
 	ActionYearHot     string = "🏆 100篇內熱門"
 	ActionRandom      string = "👩 隨機十連抽"
 	ActionAddFavorite string = "加入最愛"
