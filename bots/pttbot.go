@@ -419,9 +419,7 @@ func textHander(event *linebot.Event, message string) {
 	}
 	log.Println("txMSG=", message)
 	switch message {
-	case ActionHelp:
-	case "Help":
-	case "Menu":
+	case "Menu", "menu", "Help", "help", ActionHelp:
 		template := getMenuButtonTemplateV2(event, DefaultTitle)
 		sendCarouselMessage(event, template, "我能為您做什麼？")
 	case ActionRandom:
@@ -438,8 +436,8 @@ func textHander(event *linebot.Event, message string) {
 		values.Set("page", "0")
 		actionShowFavorite(event, "", values)
 	default:
-		meta.Log.Println("Unknow action")
-		sendTextMessage(event, "Unknow action")
+		template := getMenuButtonTemplateV2(event, DefaultTitle)
+		sendCarouselMessage(event, template, "我能為您做什麼？")
 		return
 	}
 
