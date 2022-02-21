@@ -22,7 +22,7 @@ github.com/jinzhu/inflection
 # github.com/kkdai/photomgr v0.6.0
 ## explicit; go 1.15
 github.com/kkdai/photomgr
-# github.com/line/line-bot-sdk-go/v7 v7.11.0
+# github.com/line/line-bot-sdk-go/v7 v7.12.1
 ## explicit; go 1.11
 github.com/line/line-bot-sdk-go/v7/linebot
 # github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc

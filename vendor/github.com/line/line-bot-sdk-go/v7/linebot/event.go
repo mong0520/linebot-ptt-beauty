@@ -183,10 +183,10 @@ const (
 	StickerResourceTypeAnimation      StickerResourceType = "ANIMATION"
 	StickerResourceTypeSound          StickerResourceType = "SOUND"
 	StickerResourceTypeAnimationSound StickerResourceType = "ANIMATION_SOUND"
-	StickerResourceTypePerStickerText StickerResourceType = "PER_STICKER_TEXT"
+	StickerResourceTypePerStickerText StickerResourceType = "MESSAGE"
 	StickerResourceTypePopup          StickerResourceType = "POPUP"
 	StickerResourceTypePopupSound     StickerResourceType = "POPUP_SOUND"
-	StickerResourceTypeNameText       StickerResourceType = "NAME_TEXT"
+	StickerResourceTypeNameText       StickerResourceType = "CUSTOM"
 )
 
 // Event type
@@ -405,6 +405,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 			StickerID:           m.StickerID,
 			StickerResourceType: m.StickerResourceType,
 			Keywords:            m.Keywords,
+			Text:                m.Text,
 		}
 	}
 	return json.Marshal(&raw)
@@ -472,6 +473,7 @@ func (e *Event) UnmarshalJSON(body []byte) (err error) {
 				StickerID:           rawEvent.Message.StickerID,
 				StickerResourceType: rawEvent.Message.StickerResourceType,
 				Keywords:            rawEvent.Message.Keywords,
+				Text:                rawEvent.Message.Text,
 			}
 		}
 	case EventTypePostback:
