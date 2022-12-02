@@ -248,8 +248,8 @@ func actionShowFavorite(event *linebot.Event, action string, values url.Values) 
 			DefaultTitle,
 			"繼續看？",
 			linebot.NewMessageAction(ActionHelp, ActionHelp),
-			linebot.NewPostbackAction(previousText, previousData, "", ""),
-			linebot.NewPostbackAction(nextText, nextData, "", ""),
+			linebot.NewPostbackAction(previousText, previousData, "", "", "", ""),
+			linebot.NewPostbackAction(nextText, nextData, "", "", "", ""),
 		)
 
 		template := getCarouseTemplate(event.Source.UserID, favDocuments)
@@ -323,8 +323,8 @@ func actionNewest(event *linebot.Event, values url.Values) {
 			DefaultTitle,
 			"繼續看？",
 			linebot.NewMessageAction(ActionHelp, ActionHelp),
-			linebot.NewPostbackAction(previousText, previousData, "", ""),
-			linebot.NewPostbackAction(nextText, nextData, "", ""),
+			linebot.NewPostbackAction(previousText, previousData, "", "", "", ""),
+			linebot.NewPostbackAction(nextText, nextData, "", "", "", ""),
 		)
 		template.Columns = append(template.Columns, tmpColumn)
 
@@ -381,9 +381,9 @@ func getCarouseTemplate(userId string, records []models.ArticleDocument) (templa
 			title,
 			text,
 			linebot.NewURIAction(ActionClick, result.URL),
-			linebot.NewPostbackAction(lable, postBackData, "", ""),
+			linebot.NewPostbackAction(lable, postBackData, "", "", "", ""),
 			//linebot.NewPostbackAction(ActionRandom, dataRandom, "", ""),
-			linebot.NewPostbackAction(favLabel, dataAddFavorite, "", ""),
+			linebot.NewPostbackAction(favLabel, dataAddFavorite, "", "", "", ""),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
@@ -464,17 +464,17 @@ func getMenuButtonTemplateV2(event *linebot.Event, title string) (template *line
 		defaultThumbnail,
 		title,
 		"你可以試試看以下選項，或直接輸入關鍵字查詢",
-		linebot.NewPostbackAction(ActionNewest, dataNewlest, "", ""),
-		linebot.NewPostbackAction(ActionRandom, dataRandom, "", ""),
-		linebot.NewPostbackAction(ActonShowFav, dataShowFav, "", ""),
+		linebot.NewPostbackAction(ActionNewest, dataNewlest, "", "", "", ""),
+		linebot.NewPostbackAction(ActionRandom, dataRandom, "", "", "", ""),
+		linebot.NewPostbackAction(ActonShowFav, dataShowFav, "", "", "", ""),
 	)
 	menu2 := linebot.NewCarouselColumn(
 		defaultThumbnail,
 		title,
 		"你可以試試看以下選項，或直接輸入關鍵字查詢",
-		linebot.NewPostbackAction(ActionDailyHot, dataQuery+"&period=20", "", ""),
-		linebot.NewPostbackAction(ActionMonthlyHot, dataQuery+"&period=60", "", ""),
-		linebot.NewPostbackAction(ActionYearHot, dataQuery+"&period=100", "", ""),
+		linebot.NewPostbackAction(ActionDailyHot, dataQuery+"&period=20", "", "", "", ""),
+		linebot.NewPostbackAction(ActionMonthlyHot, dataQuery+"&period=60", "", "", "", ""),
+		linebot.NewPostbackAction(ActionYearHot, dataQuery+"&period=100", "", "", "", ""),
 	)
 	columnList = append(columnList, menu1, menu2)
 	template = linebot.NewCarouselTemplate(columnList...)
@@ -513,7 +513,7 @@ func getImgCarousTemplate(record *models.ArticleDocument, values url.Values) (te
 		postBackData := fmt.Sprintf("action=%s&page=%d&url=%s", ActionAllImage, page+1, targetUrl)
 		tmpColumn := linebot.NewImageCarouselColumn(
 			defaultImage,
-			linebot.NewPostbackAction("下一頁", postBackData, "", ""),
+			linebot.NewPostbackAction("下一頁", postBackData, "", "", "", ""),
 		)
 		columnList = append(columnList, tmpColumn)
 	}
